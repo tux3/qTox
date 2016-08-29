@@ -32,7 +32,7 @@ public:
 
     void editBegin();
     void setEditable(bool editable);
-    void setEdlideMode(Qt::TextElideMode elide);
+    void setElideMode(Qt::TextElideMode elide);
 
     void setText(const QString& text);
     QString fullText();

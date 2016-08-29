@@ -56,77 +56,81 @@ public:
     static const QString ACTION_PREFIX;
 
 signals:
-    void sendFile(uint32_t friendId, QString, QString, long long);
     void aliasChanged(const QString& alias);
 
 public slots:
     void startFileSend(ToxFile file);
     void onFileRecvRequest(ToxFile file);
-    void onAvInvite(uint32_t FriendId, bool video);
-    void onAvStart(uint32_t FriendId, bool video);
-    void onAvEnd(uint32_t FriendId);
-    void onAvatarChange(uint32_t FriendId, const QPixmap& pic);
-    void onAvatarRemoved(uint32_t FriendId);
+    void onAvInvite(uint32_t friendId, bool video);
+    void onAvStart(uint32_t friendId, bool video);
+    void onAvEnd(uint32_t friendId);
+    void onAvatarChange(uint32_t friendId, const QPixmap& pic);
+    void onAvatarRemoved(uint32_t friendId);
 
 private slots:
+    void clearChatArea(bool notInForm) override final;
+
+    void onDeliverOfflineMessages();
+    void onLoadChatHistory();
     void onSendTriggered();
     void onTextEditChanged();
     void onAttachClicked();
     void onCallTriggered();
     void onVideoCallTriggered();
     void onAnswerCallTriggered();
-    void onHangupCallTriggered();
-    void onCancelCallTriggered();
     void onRejectCallTriggered();
     void onMicMuteToggle();
     void onVolMuteToggle();
-    void onFileSendFailed(uint32_t FriendId, const QString &fname);
-    void onFriendStatusChanged(uint32_t friendId, Status status);
+
+    void onFileSendFailed(uint32_t friendId, const QString &fname);
+    void onFriendStatusChanged(quint32 friendId, Status status);
+    void onFriendTypingChanged(quint32 friendId, bool isTyping);
+    void onFriendNameChanged(const QString& name);
+    void onFriendMessageReceived(quint32 friendId, const QString& message,
+                                 bool isAction);
+    void onStatusMessage(const QString& message);
+    void onReceiptReceived(quint32 friendId, int receipt);
     void onLoadHistory();
     void onUpdateTime();
-    void onEnableCallButtons();
     void onScreenshotClicked();
     void onScreenshotTaken(const QPixmap &pixmap);
     void doScreenshot();
-    void onMessageInserted();
     void onCopyStatusMessage();
 
 private:
+    void updateMuteMicButton();
+    void updateMuteVolButton();
     void retranslateUi();
     void showOutgoingCall(bool video);
     void startCounter();
     void stopCounter();
     QString secondsToDHMS(quint32 duration);
-    void enableCallButtons();
-    void disableCallButtons();
+    void updateCallButtons();
     void SendMessageStr(QString msg);
 
 protected:
-    virtual GenericNetCamView* createNetcam() final override;
-    // drag & drop
-    virtual void dragEnterEvent(QDragEnterEvent* ev) final override;
-    virtual void dropEvent(QDropEvent* ev) final override;
-    virtual void hideEvent(QHideEvent* event) final override;
-    virtual void showEvent(QShowEvent* event) final override;
+    GenericNetCamView* createNetcam() final override;
+    void insertChatMessage(ChatMessage::Ptr msg) final override;
+    void dragEnterEvent(QDragEnterEvent* ev) final override;
+    void dropEvent(QDropEvent* ev) final override;
+    void hideEvent(QHideEvent* event) final override;
+    void showEvent(QShowEvent* event) final override;
 
 private:
 
-    CoreAV* coreav;
     Friend* f;
     CroppingLabel *statusMessageLabel;
     QMenu statusMessageMenu;
     QLabel *callDuration;
     QTimer *callDurationTimer;
     QTimer typingTimer;
-    QTimer *disableCallButtonsTimer;
     QElapsedTimer timeElapsed;
     OfflineMsgEngine *offlineEngine;
     QAction* loadHistoryAction;
     QAction* copyStatusAction;
 
     QHash<uint, FileTransferInstance*> ftransWidgets;
-    QMap<uint32_t, Status> oldStatus;
-    CallConfirmWidget *callConfirm;
+    QPointer<CallConfirmWidget> callConfirm;
     bool isTyping;
 };
 

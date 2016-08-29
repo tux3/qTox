@@ -955,26 +955,11 @@ void Widget::addFriend(int friendId, const QString &userId)
 
     contactListWidget->addFriendWidget(widget, Status::Offline, s.getFriendCircleID(userToxId));
 
-    Core* core = Nexus::getCore();
-    CoreAV* coreav = core->getAv();
-    connect(&s, &Settings::compactLayoutChanged, widget, &GenericChatroomWidget::compactChange);
     connect(newfriend, &Friend::displayedNameChanged, this, &Widget::onFriendDisplayChanged);
-    connect(widget, SIGNAL(chatroomWidgetClicked(GenericChatroomWidget*, bool)), this, SLOT(onChatroomWidgetClicked(GenericChatroomWidget*, bool)));
+    connect(widget, &FriendWidget::chatroomWidgetClicked, this, &Widget::onChatroomWidgetClicked);
+    connect(widget, &FriendWidget::chatroomWidgetClicked, friendForm, &ChatForm::focusInput);
+    connect(widget, &FriendWidget::copyFriendIdToClipboard, this, &Widget::copyFriendIdToClipboard);
     connect(widget, SIGNAL(removeFriend(int)), this, SLOT(removeFriend(int)));
-    connect(widget, SIGNAL(copyFriendIdToClipboard(int)), this, SLOT(copyFriendIdToClipboard(int)));
-    connect(widget, SIGNAL(chatroomWidgetClicked(GenericChatroomWidget*)), friendForm, SLOT(focusInput()));
-    connect(friendForm, &GenericChatForm::sendMessage, core, &Core::sendMessage);
-    connect(friendForm, &GenericChatForm::sendAction, core, &Core::sendAction);
-    connect(friendForm, &ChatForm::sendFile, core, &Core::sendFile);
-    connect(friendForm, &ChatForm::aliasChanged, widget, &FriendWidget::setAlias);
-    connect(core, &Core::fileReceiveRequested, friendForm, &ChatForm::onFileRecvRequest);
-    connect(coreav, &CoreAV::avInvite, friendForm, &ChatForm::onAvInvite, Qt::BlockingQueuedConnection);
-    connect(coreav, &CoreAV::avStart, friendForm, &ChatForm::onAvStart, Qt::BlockingQueuedConnection);
-    connect(coreav, &CoreAV::avEnd, friendForm, &ChatForm::onAvEnd, Qt::BlockingQueuedConnection);
-    connect(core, &Core::friendAvatarChanged, friendForm, &ChatForm::onAvatarChange);
-    connect(core, &Core::friendAvatarRemoved, friendForm, &ChatForm::onAvatarRemoved);
-    connect(core, &Core::friendAvatarChanged, widget, &FriendWidget::onAvatarChange);
-    connect(core, &Core::friendAvatarRemoved, widget, &FriendWidget::onAvatarRemoved);
 
     // Try to get the avatar from the cache
     QPixmap avatar = Nexus::getProfile()->loadAvatar(userId);
@@ -1155,8 +1140,6 @@ void Widget::onFriendMessageReceived(int friendId, const QString& message, bool 
         return;
 
     QDateTime timestamp = QDateTime::currentDateTime();
-    f->getChatForm()->addMessage(f->getToxId(), message, isAction, timestamp, true);
-
     Profile* profile = Nexus::getProfile();
     if (profile->isHistoryEnabled())
         profile->getHistory()->addNewMessage(f->getToxId().publicKey, isAction ? ChatForm::ACTION_PREFIX + f->getDisplayedName() + " " + message : message,

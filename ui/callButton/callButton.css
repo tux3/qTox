@@ -1,83 +1,63 @@
-QPushButton#green
+QAbstractButton
 {
-    background-color: #6bc260;
+    border-radius: 5px;
+    border: none;
     background-image: url(":/ui/callButton/callButton.svg");
     background-repeat: none;
     background-position: center;
-    border: none;
-    border-radius: 5px;
-    width: 50px;
-    height: 40px;
 }
 
-QPushButton#green:hover
-{
-    background-color: #79c76f;
-}
-
-QPushButton#green:pressed
-{
-    background-color: #51b244;
-}
-
-QPushButton#red
-{
-    background-color: #c84e4e;
-    background-image: url(":/ui/callButton/callButton.svg");
-    background-repeat: none;
-    background-position: center;
-    border: none;
-    border-radius: 5px;
-    width: 50px;
-    height: 40px;
-}
-
-QPushButton#red:hover
-{
-    background-color: #e87474;
-}
-
-QPushButton#red:pressed
-{
-    background-color: #df3b3b;
-}
-
-QPushButton#yellow
-{
-    background-color: #e6e465;
-    background-image: url(":/ui/callButton/callButton.svg");
-    background-repeat: none;
-    background-position: center;
-    border: none;
-    border-radius: 5px;
-    width: 50px;
-    height: 40px;
-}
-
-QPushButton#yellow:hover
-{
-    background-color: #e8e774;
-}
-
-QPushButton#yellow:pressed
-{
-    background-color: #e3e155;
-}
-
-QPushButton#grey
+QAbstractButton:disabled
 {
     background-color: #919191;
-    background-image: url(":/ui/callButton/callButton.svg");
-    background-repeat: none;
-    background-position: center;
-    border: none;
-    border-radius: 5px;
-    width: 50px;
-    height: 40px;
 }
 
-QPushButton:focus
+QAbstractButton:focus
 {
     outline: none;
 }
 
+QAbstractButton#green
+{
+    background-color: #6bc260;
+}
+
+QAbstractButton#green:hover
+{
+    background-color: #79c76f;
+}
+
+QAbstractButton#green:pressed
+{
+    background-color: #51b244;
+}
+
+QAbstractButton#red
+{
+    background-color: #c84e4e;
+}
+
+QAbstractButton#red:hover
+{
+    background-color: #e87474;
+}
+
+QAbstractButton#red:pressed
+{
+    background-color: #df3b3b;
+}
+
+QAbstractButton#yellow
+{
+    background-color: #e6e465;
+}
+
+QAbstractButton#yellow:hover
+{
+    background-color: #e8e774;
+}
+
+QAbstractButton#yellow:pressed
+{
+    background-color: #e3e155;
+}

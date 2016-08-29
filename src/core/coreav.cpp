@@ -175,7 +175,9 @@ bool CoreAV::anyActiveCalls() const
  */
 bool CoreAV::isCallActive(const Friend* f) const
 {
-    return f && calls.contains(f->getFriendID());
+    return f && calls.contains(f->getFriendID())
+            ? !(calls[f->getFriendID()].inactive)
+            : false;
 }
 
 /**

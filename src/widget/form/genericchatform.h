@@ -87,7 +87,7 @@ protected slots:
     void onEmoteInsertRequested(QString str);
     void onSaveLogClicked();
     void onCopyLogClicked();
-    void clearChatArea(bool);
+    virtual void clearChatArea(bool);
     void clearChatArea();
     void onSelectAllClicked();
     void showFileMenu();
@@ -104,7 +104,7 @@ protected:
     void hideNetcam();
     virtual GenericNetCamView* createNetcam() = 0;
     QString resolveToxId(const ToxId &id);
-    void insertChatMessage(ChatMessage::Ptr msg);
+    virtual void insertChatMessage(ChatMessage::Ptr msg);
     void adjustFileMenuPosition();
     virtual void hideEvent(QHideEvent* event) override;
     virtual void showEvent(QShowEvent *) override;

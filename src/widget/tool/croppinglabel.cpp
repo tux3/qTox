@@ -76,7 +76,7 @@ void CroppingLabel::setEditable(bool editable)
         unsetCursor();
 }
 
-void CroppingLabel::setEdlideMode(Qt::TextElideMode elide)
+void CroppingLabel::setElideMode(Qt::TextElideMode elide)
 {
     elideMode = elide;
 }

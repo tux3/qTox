@@ -59,6 +59,7 @@ CallConfirmWidget::CallConfirmWidget(const QWidget *Anchor, const Friend& f) :
     rectRatio(static_cast<qreal>(rectH)/static_cast<qreal>(rectW))
 {
     setWindowFlags(Qt::SubWindow);
+    setAttribute(Qt::WA_DeleteOnClose);
 
     QPalette palette;
     palette.setColor(QPalette::WindowText, Qt::white);

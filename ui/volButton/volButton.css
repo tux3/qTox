@@ -1,38 +1,27 @@
-QPushButton#green
+QAbstractButton
 {
     background-color: transparent;
     background-image: url(":/ui/volButton/volButton.png");
     background-repeat: none;
     border: none;
-    width: 22px;
-    height: 18px;
 }
 
-QPushButton#green:hover
+QAbstractButton:disabled
+{
+    background-image: url(":/ui/volButton/volButtonDisabled.png");
+}
+
+QAbstractButton:focus
+{
+    outline: none;
+}
+
+QAbstractButton#green:hover
 {
     background-image: url(":/ui/volButton/volButtonHover.png"); 
 }
 
-QPushButton#red
+QAbstractButton#red
 {
-    background-color: transparent;
     background-image: url(":/ui/volButton/volButtonPressed.png");
-    background-repeat: none; 
-    border: none;
-    width: 22px;
-    height: 18px;
-}
-
-QPushButton#grey
-{
-    background-color: transparent;
-    background-image: url(":/ui/volButton/volButtonDisabled.png");
-    background-repeat: none;    
-    border: none;
-    width: 22px;
-    height: 18px;
-}
-
-QPushButton:focus {
-    outline: none;
 }
