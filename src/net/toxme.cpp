@@ -29,6 +29,7 @@
 #include <sodium/randombytes.h>
 #include <src/persistence/settings.h>
 #include <string>
+#include <time.h>
 
 /**
  * @class Toxme

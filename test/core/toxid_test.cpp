@@ -23,6 +23,7 @@
 
 #include <QString>
 #include <check.h>
+#include <time.h>
 
 const QString corrupted =
     QStringLiteral("C7719C6808C14B77348004956D1D98046CE09A34370E7608150EAD74C3815D30C8BA3AB9BEBA");
