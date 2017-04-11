@@ -27,7 +27,7 @@
 #include <QVector>
 
 #include <check.h>
-#include <time.h>
+#include <ctime>
 
 using StringToString = QMap<QString, QString>;
 

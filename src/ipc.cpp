@@ -24,7 +24,7 @@
 #include <QThread>
 #include <random>
 #include <unistd.h>
-#include <time.h>
+#include <ctime>
 
 /**
  * @var time_t IPC::lastEvent
