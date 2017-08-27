@@ -36,8 +36,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>384</width>
-        <height>343</height>
+        <width>364</width>
+        <height>509</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -113,6 +113,25 @@ If you are getting spammed with friend requests, change the NoSpam.</string>
              </widget>
             </item>
            </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox">
+         <property name="toolTip">
+          <string/>
+         </property>
+         <property name="title">
+          <string>BlackList</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QTextEdit" name="blackListTextEdit">
+            <property name="toolTip">
+             <string>Filter group message by group member's public key. Put public key here, one per line.</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>

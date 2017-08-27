@@ -1689,6 +1689,12 @@ void Widget::onGroupMessageReceived(int groupnumber, int peernumber, const QStri
     ToxPk author = core->getGroupPeerPk(groupnumber, peernumber);
     bool isSelf = author == core->getSelfId().getPublicKey();
 
+    const Settings& s = Settings::getInstance();
+    if (s.getBlackList().contains(author.toString())) {
+        qDebug() << "onGroupMessageReceived: Filtered:" << author.toString();
+        return;
+    }
+
     bool targeted =
         !isSelf && (message.contains(nameMention) || message.contains(sanitizedNameMention));
     if (targeted && !isAction) {

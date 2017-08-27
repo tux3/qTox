@@ -89,6 +89,7 @@ class Settings : public QObject
     // Privacy
     Q_PROPERTY(bool typingNotification READ getTypingNotification WRITE setTypingNotification NOTIFY
                    typingNotificationChanged FINAL)
+    Q_PROPERTY(QStringList blackList READ getBlackList WRITE setBlackList NOTIFY blackListChanged FINAL)
 
     // Audio
     Q_PROPERTY(QString inDev READ getInDev WRITE setInDev NOTIFY inDevChanged FINAL)
@@ -227,6 +228,7 @@ signals:
     // Privacy
     void typingNotificationChanged(bool enabled);
     void dbSyncTypeChanged(Db::syncType type);
+    void blackListChanged(QStringList& blist);
 
     // Audio
     void inDevChanged(const QString& name);
@@ -436,6 +438,8 @@ public:
     // Privacy
     bool getTypingNotification() const;
     void setTypingNotification(bool enabled);
+    QStringList getBlackList() const;
+    void setBlackList(QStringList& blist);
 
     // State
     QByteArray getWindowGeometry() const;
@@ -614,6 +618,7 @@ private:
     // Privacy
     bool typingNotification;
     Db::syncType dbSyncType;
+    QStringList blackList;
 
     // Audio
     QString inDev;
