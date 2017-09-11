@@ -31,6 +31,7 @@ sudo apt-get install -y --force-yes \
     build-essential \
     check \
     checkinstall \
+    libexif-dev \
     libgdk-pixbuf2.0-dev \
     libglib2.0-dev \
     libgtk2.0-dev \

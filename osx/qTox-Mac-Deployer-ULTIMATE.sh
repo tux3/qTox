@@ -167,7 +167,7 @@ install() {
     else
         brew install cmake
     fi
-    brew install ffmpeg qrencode qt5 sqlcipher openal-soft
+    brew install ffmpeg libexif qrencode qt5 sqlcipher openal-soft
 
     fcho "Cloning filter_audio ... "
     git clone --branch v0.0.1 --depth=1 https://github.com/irungentoo/filter_audio "$FILTERAUIO_DIR"

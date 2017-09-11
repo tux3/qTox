@@ -266,6 +266,7 @@ sudo apt-get install \
     build-essential \
     cmake \
     ffmpeg \
+    libexif-dev \
     libgdk-pixbuf2.0-dev \
     libglib2.0-dev \
     libgtk2.0-dev \
@@ -300,6 +301,7 @@ sudo dnf groupinstall "Development Tools" "C Development Tools and Libraries"
 sudo dnf install \
     ffmpeg-devel \
     gtk2-devel \
+    libexif-devel \
     libXScrnSaver-devel \
     libtool \
     openal-soft-devel \
@@ -324,6 +326,7 @@ sudo dnf install \
 
 ```bash
 sudo zypper install \
+    libexif-devel \
     libQt5Concurrent-devel \
     libQt5Network-devel \
     libQt5OpenGL-devel \
@@ -358,6 +361,7 @@ sudo apt-get install \
     libavdevice-ffmpeg-dev \
     libavfilter-ffmpeg-dev \
     libavutil-ffmpeg-dev \
+    libexif-dev \
     libgdk-pixbuf2.0-dev \
     libglib2.0-dev \
     libgtk2.0-dev \
@@ -387,6 +391,7 @@ sudo apt-get install \
     libavdevice-dev \
     libavfilter-dev \
     libavutil-dev \
+    libexif-dev \
     libgdk-pixbuf2.0-dev \
     libglib2.0-dev \
     libgtk2.0-dev \

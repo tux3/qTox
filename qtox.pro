@@ -157,6 +157,7 @@ win32 {
             -lavformat \
             -lavcodec \
             -lavutil \
+            -lexif \
             -lswscale \
             -lOpenAL32 \
             -lopus \
@@ -214,6 +215,7 @@ win32 {
                 -lavdevice \
                 -lavcodec \
                 -lavutil \
+                -lexif \
                 -lswscale \
                 -lz \
                 -ljpeg \
@@ -250,6 +252,7 @@ win32 {
                 -lavdevice \
                 -lavcodec \
                 -lavutil \
+                -lexif \
                 -lswscale \
                 -lqrencode \
                 -lsqlcipher \
