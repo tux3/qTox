@@ -167,7 +167,6 @@ FriendWidget* ContentDialog::addFriend(const Friend* frnd, GenericChatForm* form
     friendLayout->addFriendWidget(friendWidget, frnd->getStatus());
     friendChatForms[friendId] = form;
 
-    connect(frnd, &Friend::aliasChanged, this, &ContentDialog::updateFriendWidget);
     connect(friendWidget, &FriendWidget::chatroomWidgetClicked, this, &ContentDialog::activate);
     connect(friendWidget, &FriendWidget::newWindowOpened, this, &ContentDialog::openNewDialog);
 
@@ -216,8 +215,6 @@ void ContentDialog::removeFriend(int friendId)
     }
 
     FriendWidget* chatroomWidget = static_cast<FriendWidget*>(std::get<1>(iter.value()));
-    disconnect(chatroomWidget->getFriend(), &Friend::aliasChanged, this,
-               &ContentDialog::updateFriendWidget);
 
     // Need to find replacement to show here instead.
     if (activeChatroomWidget == chatroomWidget) {
@@ -733,22 +730,6 @@ void ContentDialog::activate(GenericChatroomWidget* widget)
     widget->resetEventFlags();
     widget->updateStatusLight();
     updateTitleAndStatusIcon();
-}
-
-/**
- * @brief Update friend widget name and position.
- * @param friendId Friend Id.
- * @param alias Alias to display on widget.
- */
-void ContentDialog::updateFriendWidget(uint32_t friendId, QString alias)
-{
-    Friend* f = FriendList::findFriend(friendId);
-    GenericChatroomWidget* widget = std::get<1>(friendList.find(friendId).value());
-    FriendWidget* friendWidget = static_cast<FriendWidget*>(widget);
-    friendWidget->setName(alias);
-
-    Status status = f->getStatus();
-    friendLayout->addFriendWidget(friendWidget, status);
 }
 
 /**

@@ -998,7 +998,7 @@ void Widget::addFriend(uint32_t friendId, const ToxPk& friendPk)
     contactListWidget->addFriendWidget(widget, Status::Offline, s.getFriendCircleID(friendPk));
 
     connect(newfriend, &Friend::aliasChanged, this, &Widget::onFriendAliasChanged);
-    connect(newfriend, &Friend::nameChanged, this, &Widget::onFriendAliasChanged);
+    connect(newfriend, &Friend::displayedNameChanged, this, &Widget::onFriendDisplayedNameChanged);
 
     connect(friendForm, &ChatForm::incomingNotification, this, &Widget::incomingNotification);
     connect(friendForm, &ChatForm::outgoingNotification, this, &Widget::outgoingNotification);
@@ -1083,6 +1083,16 @@ void Widget::onFriendStatusMessageChanged(int friendId, const QString& message)
     ContentDialog::updateFriendStatusMessage(friendId, message);
 }
 
+void Widget::onFriendDisplayedNameChanged(const QString& displayed)
+{
+    Friend* f = qobject_cast<Friend*>(sender());
+    FriendWidget* friendWidget = friendWidgets[f->getId()];
+
+    if (friendWidget->isActive()) {
+        GUI::setWindowTitle(displayed);
+    }
+}
+
 void Widget::onFriendUsernameChanged(int friendId, const QString& username)
 {
     Friend* f = FriendList::findFriend(friendId);
@@ -1097,27 +1107,17 @@ void Widget::onFriendUsernameChanged(int friendId, const QString& username)
 
 void Widget::onFriendAliasChanged(uint32_t friendId, const QString& alias)
 {
-    Friend* f = FriendList::findFriend(friendId);
-    FriendWidget* friendWidget = friendWidgets[friendId];
+    Friend* f = qobject_cast<Friend*>(sender());
+    FriendWidget* friendWidget = friendWidgets[f->getId()];
 
-    friendWidget->setName(alias);
-
-    if (friendWidget->isActive()) {
-        GUI::setWindowTitle(alias);
-    }
-
+    // TODO(sudden6): why is the status updated here?
     Status status = f->getStatus();
     contactListWidget->moveWidget(friendWidget, status);
     FilterCriteria criteria = getFilterCriteria();
     bool filter = status == Status::Offline ? filterOffline(criteria) : filterOnline(criteria);
     friendWidget->searchName(ui->searchContactText->text(), filter);
 
-    ChatForm* friendForm = chatForms[friendId];
-    friendForm->setName(alias);
-    for (Group* g : GroupList::getAllGroups()) {
-        g->regeneratePeerList();
-    }
-
+    // TODO(sudden6): this seems to be a valid use case for the aliasChanged signal
     const ToxPk& pk = f->getPublicKey();
     Settings& s = Settings::getInstance();
     s.setFriendAlias(pk, alias);

@@ -47,7 +47,6 @@ signals:
 public slots:
     void onAvatarChange(uint32_t friendId, const QPixmap& pic);
     void onAvatarRemoved(uint32_t friendId);
-    void setAlias(const QString& alias);
     void onContextMenuCalled(QContextMenuEvent* event);
 
 protected:

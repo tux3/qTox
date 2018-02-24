@@ -157,6 +157,7 @@ public slots:
     void addFriendFailed(const ToxPk& userId, const QString& errorInfo = QString());
     void onFriendStatusChanged(int friendId, Status status);
     void onFriendStatusMessageChanged(int friendId, const QString& message);
+    void onFriendDisplayedNameChanged(const QString& displayed);
     void onFriendUsernameChanged(int friendId, const QString& username);
     void onFriendAliasChanged(uint32_t friendId, const QString& alias);
     void onFriendMessageReceived(int friendId, const QString& message, bool isAction);
