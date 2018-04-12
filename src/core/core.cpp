@@ -1392,15 +1392,17 @@ QStringList Core::splitMessage(const QString& message, int maxLen)
         }
 
         if (splitPos <= 0) {
+            const uint8_t firstOfMultiByteMask = 0xC0;
+            const uint8_t multiByteMask = 0x80;
             splitPos = maxLen;
-            if (ba_message[splitPos] & 0x80) {
-                do {
+            // don't split a utf8 character
+            if ((ba_message[splitPos] & multiByteMask) == multiByteMask) {
+                while ((ba_message[splitPos] & firstOfMultiByteMask) != firstOfMultiByteMask) {
                     --splitPos;
-                } while (!(ba_message[splitPos] & 0x40));
+                }
             }
             --splitPos;
         }
-
         splittedMsgs.append(QString{ba_message.left(splitPos + 1)});
         ba_message = ba_message.mid(splitPos + 1);
     }
