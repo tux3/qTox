@@ -28,10 +28,11 @@
 
 static const int MAX_GROUP_TITLE_LENGTH = 128;
 
-Group::Group(int groupId, const QString& name, bool isAvGroupchat, const QString& selfName)
+Group::Group(int groupId, const ToxPk persistentGroupId, const QString& name, bool isAvGroupchat, const QString& selfName)
     : selfName{selfName}
     , title{name}
     , groupId(groupId)
+    , persistentGroupId{persistentGroupId}
     , avGroupchat{isAvGroupchat}
 {
     // in groupchats, we only notify on messages containing your name <-- dumb
@@ -132,6 +133,11 @@ bool Group::isAvGroupchat() const
 uint32_t Group::getId() const
 {
     return groupId;
+}
+
+const ToxPk Group::getPersistentId() const
+{
+    return persistentGroupId;
 }
 
 int Group::getPeersCount() const

@@ -27,10 +27,11 @@ class QList;
 class Group;
 class QString;
 
+class ToxPk;
 class GroupList
 {
 public:
-    static Group* addGroup(int groupId, const QString& name, bool isAvGroupchat, const QString& selfName);
+    static Group* addGroup(int groupId, const ToxPk& persistentGroupId, const QString& name, bool isAvGroupchat, const QString& selfName);
     static Group* findGroup(int groupId);
     static void removeGroup(int groupId, bool fake = false);
     static QList<Group*> getAllGroups();

@@ -44,6 +44,26 @@ const QString Core::TOX_EXT = ".tox";
 
 #define ASSERT_CORE_THREAD assert(QThread::currentThread() == coreThread.get())
 
+namespace {
+    bool LogConferenceTitleError(TOX_ERR_CONFERENCE_TITLE error)
+    {
+        switch(error)
+        {
+        case TOX_ERR_CONFERENCE_TITLE_OK:
+            break;
+        case TOX_ERR_CONFERENCE_TITLE_CONFERENCE_NOT_FOUND:
+            qWarning() << "Conference title not found";
+            break;
+        case TOX_ERR_CONFERENCE_TITLE_INVALID_LENGTH:
+            qWarning() << "Invalid conference title length";
+            break;
+        case TOX_ERR_CONFERENCE_TITLE_FAIL_SEND:
+            qWarning() << "Failed to send title packet";
+        }
+        return error;
+    }
+} // namespace
+
 Core::Core(QThread* coreThread)
     : tox(nullptr)
     , av(nullptr)
@@ -451,8 +471,7 @@ void Core::onGroupInvite(Tox* tox, uint32_t friendId, Tox_Conference_Type type,
                          const uint8_t* cookie, size_t length, void* vCore)
 {
     Core* core = static_cast<Core*>(vCore);
-    // static_cast is used twice to replace using unsafe reinterpret_cast
-    const QByteArray data(static_cast<const char*>(static_cast<const void*>(cookie)), length);
+    const QByteArray data(reinterpret_cast<const char*>(cookie), length);
     const GroupInvite inviteInfo(friendId, type, data);
     switch (type) {
     case TOX_CONFERENCE_TYPE_TEXT:
@@ -1025,7 +1044,18 @@ void Core::loadGroups()
     tox_conference_get_chatlist(tox.get(), groupIds);
 
     for(size_t i = 0; i < groupCount; ++i) {
-        emit emptyGroupCreated(static_cast<int>(groupIds[i]));
+        TOX_ERR_CONFERENCE_TITLE error;
+        size_t titleSize = tox_conference_get_title_size(tox.get(), groupIds[i], &error);
+        if (LogConferenceTitleError(error)) {
+            continue;
+        }
+
+        QByteArray name(titleSize, Qt::Uninitialized);
+        if (!tox_conference_get_title(tox.get(), groupIds[i], reinterpret_cast<uint8_t*>(name.data()), &error))
+        if (LogConferenceTitleError(error)) {
+            continue;
+        }
+        emit emptyGroupCreated(static_cast<int>(groupIds[i]), getGroupPersistentId(groupIds[i]), ToxString(name).getQString());
     }
 
     delete[] groupIds;
@@ -1083,6 +1113,17 @@ bool Core::parsePeerQueryError(Tox_Err_Conference_Peer_Query error) const
     }
 }
 
+ToxPk Core::getGroupPersistentId(uint32_t groupNumber) {
+    size_t conferenceIdSize = TOX_CONFERENCE_UID_SIZE;
+    QByteArray groupPersistentId(conferenceIdSize, Qt::Uninitialized);
+    if (tox_conference_get_id(tox.get(), groupNumber, reinterpret_cast<uint8_t*>(groupPersistentId.data()))) {
+        return ToxPk{groupPersistentId};
+    } else {
+        qCritical() << "Failed to get conference ID of group" << groupNumber;
+        return {};
+    }
+}
+
 /**
  * @brief Get number of peers in the conference.
  * @return The number of peers in the conference. UINT32_MAX on failure.
@@ -1114,7 +1155,7 @@ QString Core::getGroupPeerName(int groupId, int peerId) const
     }
 
     QByteArray name(length, Qt::Uninitialized);
-    uint8_t* namePtr = static_cast<uint8_t*>(static_cast<void*>(name.data()));
+    uint8_t* namePtr = reinterpret_cast<uint8_t*>(name.data());
     bool success = tox_conference_peer_get_name(tox.get(), groupId, peerId, namePtr, &error);
     if (!parsePeerQueryError(error) || !success) {
         qWarning() << "getGroupPeerName: Unknown error";
@@ -1179,7 +1220,7 @@ QStringList Core::getGroupPeerNames(int groupId) const
         }
 
         QByteArray name(length, Qt::Uninitialized);
-        uint8_t* namePtr = static_cast<uint8_t*>(static_cast<void*>(name.data()));
+        uint8_t* namePtr = reinterpret_cast<uint8_t*>(name.data());
         bool ok = tox_conference_peer_get_name(tox.get(), groupId, i, namePtr, &error);
         if (ok && parsePeerQueryError(error)) {
             names.append(ToxString(name).getQString());
@@ -1267,7 +1308,7 @@ uint32_t Core::joinGroupchat(const GroupInvite& inviteInfo) const
     const uint32_t friendId = inviteInfo.getFriendId();
     const uint8_t confType = inviteInfo.getType();
     const QByteArray invite = inviteInfo.getInvite();
-    const uint8_t* const cookie = static_cast<const uint8_t*>(static_cast<const void*>(invite.data()));
+    const uint8_t* const cookie = reinterpret_cast<const uint8_t*>(invite.data());
     const size_t cookieLength = invite.length();
     switch (confType) {
     case TOX_CONFERENCE_TYPE_TEXT: {
@@ -1324,7 +1365,7 @@ int Core::createGroup(uint8_t type)
 
         switch (error) {
         case TOX_ERR_CONFERENCE_NEW_OK:
-            emit emptyGroupCreated(groupId);
+            emit emptyGroupCreated(groupId, getGroupPersistentId(groupId));
             return groupId;
 
         case TOX_ERR_CONFERENCE_NEW_INIT:
@@ -1336,7 +1377,7 @@ int Core::createGroup(uint8_t type)
         }
     } else if (type == TOX_CONFERENCE_TYPE_AV) {
         uint32_t groupId = toxav_add_av_groupchat(tox.get(), CoreAV::groupCallCallback, this);
-        emit emptyGroupCreated(groupId);
+        emit emptyGroupCreated(groupId, getGroupPersistentId(groupId));
         return groupId;
     } else {
         qWarning() << "createGroup: Unknown type " << type;

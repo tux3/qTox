@@ -33,7 +33,7 @@ class LoadHistoryDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit LoadHistoryDialog(const ToxPk& friendPk, QWidget* parent = nullptr);
+    explicit LoadHistoryDialog(const ToxPk& contactId, QWidget* parent = nullptr);
     explicit LoadHistoryDialog(QWidget* parent = nullptr);
     ~LoadHistoryDialog();
 
@@ -46,7 +46,7 @@ public slots:
 
 private:
     Ui::LoadHistoryDialog* ui;
-    const ToxPk friendPk;
+    const ToxPk contactId;
 };
 
 #endif // LOADHISTORYDIALOG_H

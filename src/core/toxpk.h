@@ -4,6 +4,7 @@
 #include <QByteArray>
 #include <QString>
 #include <cstdint>
+#include <QHash>
 
 class ToxPk
 {
@@ -28,5 +29,10 @@ public:
 private:
     QByteArray key;
 };
+
+inline uint qHash(const ToxPk& key)
+{
+    return qHash(key.getKey());
+}
 
 #endif // TOXPK_H

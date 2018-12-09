@@ -72,35 +72,36 @@ public:
 
     bool isValid();
 
-    bool isHistoryExistence(const QString& friendPk);
+    bool isHistoryExistence(const ToxPk& contactId);
 
     void eraseHistory();
-    void removeFriendHistory(const QString& friendPk);
-    void addNewMessage(const QString& friendPk, const QString& message, const QString& sender,
+    void removeContactHistory(const ToxPk& contactId);
+    void removeGroupHistory(const ToxPk& groupPersistentId);
+    void addNewMessage(const ToxPk& contactId, const QString& message, const ToxPk& sender,
                        const QDateTime& time, bool isSent, QString dispName,
                        const std::function<void(int64_t)>& insertIdCallback = {});
 
-    QList<HistMessage> getChatHistoryFromDate(const QString& friendPk, const QDateTime& from,
+    QList<HistMessage> getChatHistoryFromDate(const ToxPk& contactId, const QDateTime& from,
                                               const QDateTime& to);
-    QList<HistMessage> getChatHistoryDefaultNum(const QString& friendPk);
-    QList<DateMessages> getChatHistoryCounts(const ToxPk& friendPk, const QDate& from, const QDate& to);
-    QDateTime getDateWhereFindPhrase(const QString& friendPk, const QDateTime& from, QString phrase,
+    QList<HistMessage> getChatHistoryDefaultNum(const ToxPk& contactId);
+    QList<DateMessages> getChatHistoryCounts(const ToxPk& contactId, const QDate& from, const QDate& to);
+    QDateTime getDateWhereFindPhrase(const ToxPk& contactId, const QDateTime& from, QString phrase,
                                      const ParameterSearch& parameter);
-    QDateTime getStartDateChatHistory(const QString& friendPk);
+    QDateTime getStartDateChatHistory(const ToxPk& contactId);
 
     void markAsSent(qint64 messageId);
 
 protected:
     QVector<RawDatabase::Query>
-    generateNewMessageQueries(const QString& friendPk, const QString& message,
-                              const QString& sender, const QDateTime& time, bool isSent,
+    generateNewMessageQueries(const ToxPk& contactId, const QString& message,
+                              const ToxPk& sender, const QDateTime& time, bool isSent,
                               QString dispName, std::function<void(int64_t)> insertIdCallback = {});
 
 private:
-    QList<HistMessage> getChatHistory(const QString& friendPk, const QDateTime& from,
+    QList<HistMessage> getChatHistory(const ToxPk& contactId, const QDateTime& from,
                                       const QDateTime& to, int numMessages);
     std::shared_ptr<RawDatabase> db;
-    QHash<QString, int64_t> peers;
+    QHash<ToxPk, int64_t> peers;
 };
 
 #endif // HISTORY_H

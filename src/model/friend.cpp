@@ -129,6 +129,11 @@ uint32_t Friend::getId() const
     return friendId;
 }
 
+const ToxPk Friend::getPersistentId() const
+{
+    return friendPk;
+}
+
 void Friend::setEventFlag(bool flag)
 {
     hasNewEvents = flag;

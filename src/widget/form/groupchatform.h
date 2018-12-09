@@ -28,6 +28,7 @@ namespace Ui {
 class MainWindow;
 }
 class Group;
+class History;
 class TabCompleter;
 class FlowLayout;
 class QTimer;
@@ -36,7 +37,7 @@ class GroupChatForm : public GenericChatForm
 {
     Q_OBJECT
 public:
-    explicit GroupChatForm(Group* chatGroup);
+    GroupChatForm(Group* chatGroup, History* history);
     ~GroupChatForm();
 
     void peerAudioPlaying(ToxPk peerPk);
@@ -50,9 +51,6 @@ private slots:
     void onCallClicked();
     void onUserListChanged();
     void onTitleChanged(uint32_t groupId, const QString& author, const QString& title);
-    void searchInBegin(const QString& phrase, const ParameterSearch& parameter) override;
-    void onSearchUp(const QString& phrase, const ParameterSearch& parameter) override;
-    void onSearchDown(const QString& phrase, const ParameterSearch& parameter) override;
     void onLabelContextMenuRequested(const QPoint& localPos);
 
 protected:
@@ -67,6 +65,7 @@ private:
     void retranslateUi();
     void updateUserCount();
     void updateUserNames();
+    void sendMessageStr(QString msg);
 
 private:
     Group* group;
@@ -76,6 +75,7 @@ private:
     QLabel* nusersLabel;
     TabCompleter* tabber;
     bool inCall;
+    History* history;
 };
 
 #endif // GROUPCHATFORM_H

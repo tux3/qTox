@@ -44,6 +44,7 @@ private slots:
     void clearTest();
     void copyTest();
     void publicKeyTest();
+    void hashableTest();
 };
 
 void TestToxPk::toStringTest()
@@ -84,6 +85,15 @@ void TestToxPk::publicKeyTest()
     for (int i = 0; i < ToxPk::getPkSize(); i++) {
         QVERIFY(testPkArray[i] == pk.getBytes()[i]);
     }
+}
+
+void TestToxPk::hashableTest()
+{
+    ToxPk pk1{testPkArray};
+    ToxPk pk2{testPk};
+    QVERIFY(qHash(pk1) == qHash(pk2));
+    ToxPk pk3{echoPk};
+    QVERIFY(qHash(pk1) != qHash(pk3));
 }
 
 QTEST_GUILESS_MAIN(TestToxPk)

@@ -75,7 +75,7 @@
 #include "src/widget/gui.h"
 #include "src/widget/style.h"
 #include "src/widget/translator.h"
-#include "tool/removefrienddialog.h"
+#include "tool/removecontactdialog.h"
 
 bool toxActivateEventHandler(const QByteArray&)
 {
@@ -1211,7 +1211,7 @@ void Widget::onFriendMessageReceived(int friendId, const QString& message, bool 
     QDateTime timestamp = QDateTime::currentDateTime();
     Profile* profile = Nexus::getProfile();
     if (profile->isHistoryEnabled()) {
-        QString publicKey = f->getPublicKey().toString();
+        ToxPk publicKey = f->getPublicKey();
         QString name = f->getDisplayedName();
         QString text = message;
         if (isAction) {
@@ -1491,16 +1491,7 @@ void Widget::updateFriendActivity(const Friend* frnd)
 void Widget::removeFriend(Friend* f, bool fake)
 {
     if (!fake) {
-        RemoveFriendDialog ask(this, f);
-        ask.exec();
-
-        if (!ask.accepted()) {
-            return;
-        }
-
-        if (ask.removeHistory()) {
-            Nexus::getProfile()->getHistory()->removeFriendHistory(f->getPublicKey().toString());
-        }
+        removeContactHistory(f);
     }
 
     const uint32_t friendId = f->getId();
@@ -1721,13 +1712,17 @@ void Widget::onGroupInviteAccepted(const GroupInvite& inviteInfo)
         qWarning() << "onGroupInviteAccepted: Unable to accept group invite";
         return;
     }
+    auto persistentGroupId = Core::getInstance()->getGroupPersistentId(groupId);
+    createGroup(groupId, persistentGroupId);
 }
 
 void Widget::onGroupMessageReceived(int groupnumber, int peernumber, const QString& message,
                                     bool isAction)
 {
     Group* g = GroupList::findGroup(groupnumber);
+    assert(g);
     if (!g) {
+        qCritical() << "onGroupMessageReceived called for unknown group number, ignoring";
         return;
     }
 
@@ -1753,18 +1748,35 @@ void Widget::onGroupMessageReceived(int groupnumber, int peernumber, const QStri
         form->addMessage(author, message, date, isAction, true);
     }
 
+    QDateTime timestamp = QDateTime::currentDateTime();
+    Profile* profile = Nexus::getProfile();
+    if (profile->isHistoryEnabled()) {
+        ToxPk persistentId = g->getPersistentId();
+        auto peerList = g->getPeerList();
+        auto it = peerList.find(author);
+        if (it == peerList.end()) {
+            assert(false);
+            qCritical() << "Received a group message from someone not in the group peer list, ignoring";
+            return;
+        }
+        QString authorName = *it;
+        QString text = message;
+        if (isAction) {
+            text = ChatForm::ACTION_PREFIX + text;
+        }
+        profile->getHistory()->addNewMessage(persistentId, text, author, timestamp, true, authorName);
+    }
+
     newGroupMessageAlert(groupId, targeted || Settings::getInstance().getGroupAlwaysNotify());
 }
 
 void Widget::onGroupPeerlistChanged(int groupnumber)
 {
     Group* g = GroupList::findGroup(groupnumber);
+    assert(g);
     if (!g) {
-        qDebug() << "onGroupNamelistChanged: Group " << groupnumber << " not found, creating it";
-        g = createGroup(groupnumber);
-        if (!g) {
-            return;
-        }
+        qCritical() << "onGroupPeerlistChanged called for unknown group number, ignoring";
+        return;
     }
     g->regeneratePeerList();
 }
@@ -1772,12 +1784,10 @@ void Widget::onGroupPeerlistChanged(int groupnumber)
 void Widget::onGroupPeerNameChanged(int groupnumber, int peernumber, const QString& newName)
 {
     Group* g = GroupList::findGroup(groupnumber);
+    assert(g);
     if (!g) {
-        qDebug() << "onGroupNamelistChanged: Group " << groupnumber << " not found, creating it";
-        g = createGroup(groupnumber);
-        if (!g) {
-            return;
-        }
+        qCritical() << "onGroupPeerNameChanged called for unknown group number, ignoring";
+        return;
     }
 
     QString setName = newName;
@@ -1791,7 +1801,9 @@ void Widget::onGroupPeerNameChanged(int groupnumber, int peernumber, const QStri
 void Widget::onGroupTitleChanged(int groupnumber, const QString& author, const QString& title)
 {
     Group* g = GroupList::findGroup(groupnumber);
+    assert(g);
     if (!g) {
+        qCritical() << "onGroupTitleChanged called for unknown group number, ignoring";
         return;
     }
 
@@ -1808,7 +1820,9 @@ void Widget::onGroupTitleChanged(int groupnumber, const QString& author, const Q
 void Widget::onGroupPeerAudioPlaying(int groupnumber, int peernumber)
 {
     Group* g = GroupList::findGroup(groupnumber);
+    assert(g);
     if (!g) {
+        qCritical() << "onGroupPeerAudioPlaying called for unknown group number, ignoring";
         return;
     }
 
@@ -1819,6 +1833,10 @@ void Widget::onGroupPeerAudioPlaying(int groupnumber, int peernumber)
 
 void Widget::removeGroup(Group* g, bool fake)
 {
+    if (!fake) {
+        removeContactHistory(g);
+    }
+
     auto groupId = g->getId();
     auto groupWidgetIt = groupWidgets.find(groupId);
     if (groupWidgetIt == groupWidgets.end()) {
@@ -1861,7 +1879,7 @@ void Widget::removeGroup(int groupId)
     removeGroup(GroupList::findGroup(groupId));
 }
 
-Group* Widget::createGroup(int groupId)
+Group* Widget::createGroup(int groupId, const ToxPk& groupPersistentId)
 {
     Group* g = GroupList::findGroup(groupId);
     if (g) {
@@ -1873,11 +1891,12 @@ Group* Widget::createGroup(int groupId)
     Core* core = Nexus::getCore();
 
     bool enabled = core->getGroupAvEnabled(groupId);
-    Group* newgroup = GroupList::addGroup(groupId, groupName, enabled, core->getUsername());
+    Group* newgroup = GroupList::addGroup(groupId, groupPersistentId, groupName, enabled, core->getUsername());
     std::shared_ptr<GroupChatroom> chatroom(new GroupChatroom(newgroup));
     const auto compact = Settings::getInstance().getCompactLayout();
+    auto history = Nexus::getProfile()->getHistory();
     auto widget = new GroupWidget(chatroom, compact);
-    auto form = new GroupChatForm(newgroup);
+    auto form = new GroupChatForm(newgroup, history);
     groupWidgets[groupId] = widget;
     groupChatrooms[groupId] = chatroom;
     groupChatForms[groupId] = QSharedPointer<GroupChatForm>(form);
@@ -1896,8 +1915,6 @@ Group* Widget::createGroup(int groupId)
     connect(widget, &GroupWidget::removeGroup, this, widgetRemoveGroup);
     connect(widget, &GroupWidget::middleMouseClicked, this, [=]() { removeGroup(groupId); });
     connect(widget, &GroupWidget::chatroomWidgetClicked, form, &ChatForm::focusInput);
-    connect(form, &GroupChatForm::sendMessage, core, &Core::sendGroupMessage);
-    connect(form, &GroupChatForm::sendAction, core, &Core::sendGroupAction);
     connect(newgroup, &Group::titleChangedByUser, core, &Core::changeGroupTitle);
     connect(core, &Core::usernameSet, newgroup, &Group::setSelfName);
 
@@ -1907,16 +1924,19 @@ Group* Widget::createGroup(int groupId)
     return newgroup;
 }
 
-void Widget::onEmptyGroupCreated(int groupId)
+void Widget::onEmptyGroupCreated(int groupId, const ToxPk& groupPersistentId, const QString& title)
 {
-    Group* group = createGroup(groupId);
+    Group* group = createGroup(groupId, groupPersistentId);
     if (!group) {
         return;
     }
-
-    // Only rename group if groups are visible.
-    if (Widget::getInstance()->groupsVisible()) {
-        groupWidgets[groupId]->editName();
+    if (title.isEmpty()) {
+        // Only rename group if groups are visible.
+        if (Widget::getInstance()->groupsVisible()) {
+            groupWidgets[groupId]->editName();
+        }
+    } else {
+        group->setTitle(QString(), title);
     }
 }
 
@@ -2080,7 +2100,9 @@ void Widget::onMessageSendResult(uint32_t friendId, const QString& message, int 
 void Widget::onGroupSendFailed(int groupId)
 {
     Group* g = GroupList::findGroup(groupId);
+    assert(g);
     if (!g) {
+        qCritical() << "onGroupSendFailed called for unknown group number, ignoring";
         return;
     }
 
@@ -2497,5 +2519,24 @@ void Widget::focusChatInput()
         } else if (Group* g = activeChatroomWidget->getGroup()) {
             groupChatForms[g->getId()]->focusInput();
         }
+    }
+}
+
+void Widget::removeContactHistory(Contact* c)
+{
+    assert(c);
+    if (c == nullptr) {
+        qCritical() << "removeContactHistory passed invalid Contact pointer";
+        return;
+    }
+    RemoveContactDialog ask(this, c);
+    ask.exec();
+
+    if (!ask.accepted()) {
+        return;
+    }
+
+    if (ask.removeHistory()) {
+        Nexus::getProfile()->getHistory()->removeContactHistory(c->getPersistentId());
     }
 }

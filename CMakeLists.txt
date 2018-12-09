@@ -115,7 +115,7 @@ qt5_wrap_ui(${PROJECT_NAME}_FORMS
   src/widget/about/aboutfriendform.ui
   src/widget/form/loadhistorydialog.ui
   src/widget/form/profileform.ui
-  src/widget/form/removefrienddialog.ui
+  src/widget/form/removecontactdialog.ui
   src/widget/form/searchsettingsform.ui
   src/widget/form/setpassworddialog.ui
   src/widget/form/settings/aboutsettings.ui
@@ -476,8 +476,8 @@ set(${PROJECT_NAME}_SOURCES
   src/widget/tool/profileimporter.h
   src/widget/tool/recursivesignalblocker.cpp
   src/widget/tool/recursivesignalblocker.h
-  src/widget/tool/removefrienddialog.cpp
-  src/widget/tool/removefrienddialog.h
+  src/widget/tool/removecontactdialog.cpp
+  src/widget/tool/removecontactdialog.h
   src/widget/tool/screengrabberchooserrectitem.cpp
   src/widget/tool/screengrabberchooserrectitem.h
   src/widget/tool/screengrabberoverlayitem.cpp

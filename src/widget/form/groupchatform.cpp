@@ -38,6 +38,9 @@
 #include "src/widget/translator.h"
 #include "src/persistence/settings.h"
 
+#include "src/nexus.h"
+#include "src/persistence/profile.h"
+
 #include <QDragEnterEvent>
 #include <QMimeData>
 #include <QRegularExpression>
@@ -81,10 +84,11 @@ QString editName(const QString& name)
  * @brief Timeout = peer stopped sending audio.
  */
 
-GroupChatForm::GroupChatForm(Group* chatGroup)
-    : GenericChatForm (chatGroup)
+GroupChatForm::GroupChatForm(Group* chatGroup, History* history)
+    : GenericChatForm (chatGroup, history)
     , group(chatGroup)
     , inCall(false)
+    , history(history)
 {
     nusersLabel = new QLabel();
 
@@ -130,6 +134,9 @@ GroupChatForm::GroupChatForm(Group* chatGroup)
     connect(&Settings::getInstance(), &Settings::blackListChanged, this, &GroupChatForm::updateUserNames);
 
     onUserListChanged();
+    if (Nexus::getProfile()->isHistoryEnabled()) {
+        loadHistoryDefaultNum(true);
+    }
     setAcceptDrops(true);
     Translator::registerHandler(std::bind(&GroupChatForm::retranslateUi, this), this);
 }
@@ -141,26 +148,48 @@ GroupChatForm::~GroupChatForm()
 
 void GroupChatForm::onSendTriggered()
 {
-    QString msg = msgEdit->toPlainText();
-    if (msg.isEmpty())
-        return;
-
-    msgEdit->setLastMessage(msg);
+    sendMessageStr(msgEdit->toPlainText());
     msgEdit->clear();
+}
 
-    if (group->getPeersCount() != 1) {
-        if (msg.startsWith(ChatForm::ACTION_PREFIX, Qt::CaseInsensitive)) {
-            msg.remove(0, ChatForm::ACTION_PREFIX.length());
-            emit sendAction(group->getId(), msg);
-        } else {
-            emit sendMessage(group->getId(), msg);
+void GroupChatForm::sendMessageStr(QString msg)
+{
+    if (msg.isEmpty()) {
+        return;
+    }
+
+    bool isAction = msg.startsWith(ChatForm::ACTION_PREFIX, Qt::CaseInsensitive);
+    if (isAction) {
+        msg.remove(0, ChatForm::ACTION_PREFIX.length());
+    }
+
+    QStringList splittedMsg = Core::splitMessage(msg, tox_max_message_length());
+    QDateTime timestamp = QDateTime::currentDateTime();
+
+    for (const QString& part : splittedMsg) {
+        QString historyPart = part;
+        if (isAction) {
+            historyPart = ChatForm::ACTION_PREFIX + part;
         }
-    } else {
-        if (msg.startsWith(ChatForm::ACTION_PREFIX, Qt::CaseInsensitive))
-            addSelfMessage(msg.mid(ChatForm::ACTION_PREFIX.length()), QDateTime::currentDateTime(),
-                           true);
-        else
-            addSelfMessage(msg, QDateTime::currentDateTime(), false);
+
+        Core* core = Core::getInstance();
+        uint32_t groupId = group->getId();
+        if (group->getPeersCount() != 1) {
+            isAction ? core->sendGroupAction(groupId, part) : core->sendGroupMessage(groupId, part);
+        } else {
+            // NOTE: we are considered our own group peer by toxcore, so will receive our own message, so we only add
+            // the message ourselves if we're not sending it.
+            addSelfMessage(part, timestamp, isAction);
+            if (history && Settings::getInstance().getEnableLogging()) {
+                ToxPk selfPk = Core::getInstance()->getSelfPublicKey();
+                ToxPk persistentId = group->getPersistentId();
+                QString name = Core::getInstance()->getUsername();
+                history->addNewMessage(persistentId, historyPart, selfPk, timestamp, true, name, nullptr);
+            }
+        }
+
+        // set last message only when sending it
+        msgEdit->setLastMessage(msg);
     }
 }
 
@@ -197,33 +226,6 @@ void GroupChatForm::onTitleChanged(uint32_t groupId, const QString& author, cons
     const QString message = tr("%1 has set the title to %2").arg(author, title);
     const QDateTime curTime = QDateTime::currentDateTime();
     addSystemInfoMessage(message, ChatMessage::INFO, curTime);
-}
-
-void GroupChatForm::searchInBegin(const QString& phrase, const ParameterSearch& parameter)
-{
-    disableSearchText();
-
-    searchPoint = QPoint(1, -1);
-
-    if (parameter.period == PeriodSearch::WithTheFirst || parameter.period == PeriodSearch::AfterDate) {
-        onSearchDown(phrase, parameter);
-    } else {
-        onSearchUp(phrase, parameter);
-    }
-}
-
-void GroupChatForm::onSearchUp(const QString& phrase, const ParameterSearch& parameter)
-{
-    if (!searchInText(phrase, parameter, SearchDirection::Up)) {
-        emit messageNotFoundShow(SearchDirection::Up);
-    }
-}
-
-void GroupChatForm::onSearchDown(const QString& phrase, const ParameterSearch& parameter)
-{
-    if (!searchInText(phrase, parameter, SearchDirection::Down)) {
-        emit messageNotFoundShow(SearchDirection::Down);
-    }
 }
 
 void GroupChatForm::onScreenshotClicked()

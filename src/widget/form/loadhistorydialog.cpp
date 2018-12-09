@@ -26,10 +26,10 @@
 #include <QTextCharFormat>
 #include <QCalendarWidget>
 
-LoadHistoryDialog::LoadHistoryDialog(const ToxPk& friendPk, QWidget* parent)
+LoadHistoryDialog::LoadHistoryDialog(const ToxPk& contactId, QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::LoadHistoryDialog)
-    , friendPk(friendPk)
+    , contactId(contactId)
 {
     ui->setupUi(this);
     highlightDates(QDate::currentDate().year(), QDate::currentDate().month());
@@ -77,7 +77,7 @@ void LoadHistoryDialog::highlightDates(int year, int month)
     QDate monthStart(year, month, 1);
     QDate monthEnd(year, month + 1, 1);
     QList<History::DateMessages> counts =
-        history->getChatHistoryCounts(this->friendPk, monthStart, monthEnd);
+        history->getChatHistoryCounts(this->contactId, monthStart, monthEnd);
 
     QTextCharFormat format;
     format.setFontWeight(QFont::Bold);
