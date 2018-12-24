@@ -146,6 +146,7 @@ void GroupWidget::mouseMoveEvent(QMouseEvent* ev)
     if ((dragStartPos - ev->pos()).manhattanLength() > QApplication::startDragDistance()) {
         QMimeData* mdata = new QMimeData;
         mdata->setText(getGroup()->getName());
+        mdata->setData("groupId", QByteArray::number(getGroup()->getId()));
 
         QDrag* drag = new QDrag(this);
         drag->setMimeData(mdata);
