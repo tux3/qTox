@@ -158,13 +158,18 @@ export PKG_CONFIG_PATH="$PWD/libs/lib/pkgconfig"
 build_qtox() {
     bdir() {
         cd $BUILDDIR
-        make -j$(nproc)
+        cmake --build .
         # check if `qtox` file has been made, is non-empty and is an executable
         [[ -s qtox ]] && [[ -x qtox ]]
+        # build package
+        cmake --build . --target package
         cd -
     }
 
     local BUILDDIR=_build
+
+    git fetch origin
+    git fetch origin --tags
 
     # first build qTox without support for optional dependencies
     echo '*** BUILDING "MINIMAL" VERSION ***'
@@ -180,8 +185,19 @@ build_qtox() {
     rm -rf "$BUILDDIR"
 
     echo '*** BUILDING "FULL" VERSION ***'
-    cmake -H. -B"$BUILDDIR"
+    cmake -H. -B"$BUILDDIR" \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        -DCMAKE_BUILD_TYPE="Release"
+
     bdir
+
+    REP=qtox-nightly
+    PKG=`ls _build/qtox-nightly-*-Linux.deb`
+
+    VERSION=`git describe`
+    URL_BASE="https://api.bintray.com/content/qtox/qTox/$REP/$VERSION"
+    PARAMS="deb_distribution=trusty;deb_component=main;deb_architecture=amd64;publish=1"
+    curl -T $PKG -udiadlo:$BINTRAY_API_KEY "$URL_BASE/$PKG;$PARAMS"
 }
 
 test_qtox() {

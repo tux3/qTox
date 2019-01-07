@@ -186,6 +186,14 @@ deploy:
     on:
       tags: true
     skip_cleanup: true
+  - provider: releases
+    skip_cleanup: true
+    script: .travis/upload_package.sh nightly
+  - provider: releases
+    skip_cleanup: true
+    script: .travis/upload_package.sh
+    on:
+      tags: true
 
 
 after_success:
