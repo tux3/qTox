@@ -49,11 +49,13 @@
 #include "systemtrayicon.h"
 #include "form/groupchatform.h"
 #include "src/audio/audio.h"
+#include "src/chatlog/content/filetransferwidget.h"
 #include "src/core/core.h"
 #include "src/core/coreav.h"
 #include "src/core/corefile.h"
 #include "src/friendlist.h"
 #include "src/grouplist.h"
+#include "src/model/chathistory.h"
 #include "src/model/chatroom/friendchatroom.h"
 #include "src/model/chatroom/groupchatroom.h"
 #include "src/model/friend.h"
@@ -91,6 +93,48 @@ bool toxActivateEventHandler(const QByteArray&)
 
     return true;
 }
+
+namespace {
+
+/**
+ * @brief Dangerous way to find out if a path is writable.
+ * @param filepath Path to file which should be deleted.
+ * @return True, if file writeable, false otherwise.
+ */
+bool tryRemoveFile(const QString& filepath)
+{
+    QFile tmp(filepath);
+    bool writable = tmp.open(QIODevice::WriteOnly);
+    tmp.remove();
+    return writable;
+}
+
+void acceptFileTransfer(const ToxFile& file, const QString& path)
+{
+    QString filepath;
+    int number = 0;
+
+    QString suffix = QFileInfo(file.fileName).completeSuffix();
+    QString base = QFileInfo(file.fileName).baseName();
+
+    do {
+        filepath = QString("%1/%2%3.%4")
+                       .arg(path, base,
+                            number > 0 ? QString(" (%1)").arg(QString::number(number)) : QString(),
+                            suffix);
+        ++number;
+    } while (QFileInfo(filepath).exists());
+
+    // Do not automatically accept the file-transfer if the path is not writable.
+    // The user can still accept it manually.
+    if (tryRemoveFile(filepath)) {
+        CoreFile* coreFile = Core::getInstance()->getCoreFile();
+        coreFile->acceptFileRecvRequest(file.friendId, file.fileNum, filepath);
+    } else {
+        qWarning() << "Cannot write to " << filepath;
+    }
+}
+} // namespace
 
 Widget* Widget::instance{nullptr};
 
@@ -251,6 +295,7 @@ void Widget::init()
 
     connect(profile, &Profile::selfAvatarChanged, profileForm, &ProfileForm::onSelfAvatarLoaded);
 
+    connect(coreFile, &CoreFile::fileReceiveRequested, this, &Widget::onFileReceiveRequested);
     connect(coreFile, &CoreFile::fileDownloadFinished, filesForm, &FilesForm::onFileDownloadComplete);
     connect(coreFile, &CoreFile::fileUploadFinished, filesForm, &FilesForm::onFileUploadComplete);
     connect(ui->addButton, &QPushButton::clicked, this, &Widget::onAddClicked);
@@ -270,6 +315,21 @@ void Widget::init()
     connect(filterGroup, &QActionGroup::triggered, this, &Widget::searchContacts);
     connect(filterDisplayGroup, &QActionGroup::triggered, this, &Widget::changeDisplayMode);
     connect(ui->friendList, &QWidget::customContextMenuRequested, this, &Widget::friendListContextMenu);
+
+    connect(coreFile, &CoreFile::fileSendStarted, this, &Widget::dispatchFile);
+    connect(coreFile, &CoreFile::fileReceiveRequested, this, &Widget::dispatchFile);
+    connect(coreFile, &CoreFile::fileTransferAccepted, this, &Widget::dispatchFile);
+    connect(coreFile, &CoreFile::fileTransferCancelled, this, &Widget::dispatchFile);
+    connect(coreFile, &CoreFile::fileTransferFinished, this, &Widget::dispatchFile);
+    connect(coreFile, &CoreFile::fileTransferPaused, this, &Widget::dispatchFile);
+    connect(coreFile, &CoreFile::fileTransferInfo, this, &Widget::dispatchFile);
+    connect(coreFile, &CoreFile::fileTransferRemotePausedUnpaused, this, &Widget::dispatchFileWithBool);
+    connect(coreFile, &CoreFile::fileTransferBrokenUnbroken, this, &Widget::dispatchFileWithBool);
+    connect(coreFile, &CoreFile::fileSendFailed, this, &Widget::dispatchFileSendFailed);
+    // NOTE: We intentionally do not connect the fileUploadFinished and fileDownloadFinished signals
+    // because they are duplicates of fileTransferFinished NOTE: We don't hook up the
+    // fileNameChanged signal since it is only emitted before a fileReceiveRequest. We get the
+    // initial request with the sanitized name so there is no work for us to do
 
     // keyboard shortcuts
     new QShortcut(Qt::CTRL + Qt::Key_Q, this, SLOT(close()));
@@ -904,10 +964,7 @@ void Widget::setUsername(const QString& username)
             Qt::convertFromPlainText(username, Qt::WhiteSpaceNormal)); // for overlength names
     }
 
-    QString sanename = username;
-    sanename.remove(QRegExp("[\\t\\n\\v\\f\\r\\x0000]"));
-    nameMention = QRegExp("\\b" + QRegExp::escape(username) + "\\b", Qt::CaseInsensitive);
-    sanitizedNameMention = nameMention;
+    sharedMessageProcessorParams.onUserNameSet(username);
 }
 
 void Widget::onStatusMessageChanged(const QString& newStatusMessage)
@@ -922,13 +979,6 @@ void Widget::setStatusMessage(const QString& statusMessage)
     // escape HTML from tooltips and preserve newlines
     // TODO: move newspace preservance to a generic function
     ui->statusLabel->setToolTip("<p style='white-space:pre'>" + statusMessage.toHtmlEscaped() + "</p>");
-}
-
-void Widget::reloadHistory()
-{
-    for (auto f : FriendList::getAllFriends()) {
-        chatForms[f->getPublicKey()]->loadHistoryDefaultNum(true);
-    }
 }
 
 /**
@@ -989,6 +1039,59 @@ void Widget::onStopNotification()
     audioNotification.reset();
 }
 
+/**
+ * @brief Dispatches file to the appropriate chatlog and accepts the transfer if necessary
+ */
+void Widget::dispatchFile(ToxFile file)
+{
+    const auto& friendId = FriendList::id2Key(file.friendId);
+    Friend* f = FriendList::findFriend(friendId);
+    if (!f)
+        return;
+
+    auto pk = f->getPublicKey();
+
+    if (file.status == ToxFile::INITIALIZING && file.direction == ToxFile::RECEIVING) {
+        auto sender =
+            (file.direction == ToxFile::SENDING) ? Core::getInstance()->getSelfPublicKey() : pk;
+
+        const Settings& settings = Settings::getInstance();
+        QString autoAcceptDir = settings.getAutoAcceptDir(f->getPublicKey());
+
+        if (autoAcceptDir.isEmpty() && settings.getAutoSaveEnabled()) {
+            autoAcceptDir = settings.getGlobalAutoAcceptDir();
+        }
+
+        auto maxAutoAcceptSize = settings.getMaxAutoAcceptSize();
+        bool autoAcceptSizeCheckPassed = maxAutoAcceptSize == 0 || maxAutoAcceptSize >= file.filesize;
+
+        if (!autoAcceptDir.isEmpty() && autoAcceptSizeCheckPassed) {
+            acceptFileTransfer(file, autoAcceptDir);
+        }
+    }
+
+    const auto senderPk = (file.direction == ToxFile::SENDING) ? core->getSelfPublicKey() : pk;
+    friendChatLogs[pk]->onFileUpdated(senderPk, file);
+}
+
+void Widget::dispatchFileWithBool(ToxFile file, bool)
+{
+    dispatchFile(file);
+}
+
+void Widget::dispatchFileSendFailed(uint32_t friendId, const QString& fileName)
+{
+    const auto& friendPk = FriendList::id2Key(friendId);
+
+    auto chatForm = chatForms.find(friendPk);
+    if (chatForm == chatForms.end()) {
+        return;
+    }
+
+    chatForm.value()->addSystemInfoMessage(tr("Failed to send file \"%1\"").arg(fileName),
+                                           ChatMessage::ERROR, QDateTime::currentDateTime());
+}
+
 void Widget::onRejectCall(uint32_t friendId)
 {
     CoreAV* const av = core->getAv();
@@ -1004,8 +1107,18 @@ void Widget::addFriend(uint32_t friendId, const ToxPk& friendPk)
     const auto compact = settings.getCompactLayout();
     auto widget = new FriendWidget(chatroom, compact);
     auto history = Nexus::getProfile()->getHistory();
-    auto friendForm = new ChatForm(newfriend, history);
 
+    auto friendMessageDispatcher = std::make_shared<FriendMessageDispatcher>(newfriend, *core);
+
+    // Note: We do not have to connect the message dispatcher signals since
+    // ChatHistory hooks them up in a very specific order
+    auto chatHistory =
+        std::make_shared<ChatHistory>(newfriend, history, *core, Settings::getInstance(),
+                                      *friendMessageDispatcher);
+    auto friendForm = new ChatForm(newfriend, *chatHistory, *friendMessageDispatcher);
+
+    friendMessageDispatchers[friendPk] = friendMessageDispatcher;
+    friendChatLogs[friendPk] = chatHistory;
     friendChatrooms[friendPk] = chatroom;
     friendWidgets[friendPk] = widget;
     chatForms[friendPk] = friendForm;
@@ -1019,6 +1132,20 @@ void Widget::addFriend(uint32_t friendId, const ToxPk& friendPk)
     contactListWidget->addFriendWidget(widget, Status::Status::Offline,
                                        settings.getFriendCircleID(friendPk));
 
+
+    auto notifyReceivedCallback = [this, friendPk](const ToxPk& author, const Message& message) {
+        auto isTargeted = std::any_of(message.metadata.begin(), message.metadata.end(),
+                                      [](MessageMetadata metadata) {
+                                          return metadata.type == MessageMetadataType::selfMention;
+                                      });
+        newFriendMessageAlert(friendPk, message.content);
+    };
+
+    auto notifyReceivedConnection =
+        connect(friendMessageDispatcher.get(), &IMessageDispatcher::messageReceived,
+                notifyReceivedCallback);
+
+    friendAlertConnections.insert(friendPk, notifyReceivedConnection);
     connect(newfriend, &Friend::aliasChanged, this, &Widget::onFriendAliasChanged);
     connect(newfriend, &Friend::displayedNameChanged, this, &Widget::onFriendDisplayedNameChanged);
 
@@ -1226,19 +1353,18 @@ void Widget::onFriendMessageReceived(uint32_t friendnumber, const QString& messa
         return;
     }
 
-    QDateTime timestamp = QDateTime::currentDateTime();
-    Profile* profile = Nexus::getProfile();
-    if (profile->isHistoryEnabled()) {
-        QString publicKey = f->getPublicKey().toString();
-        QString name = f->getDisplayedName();
-        QString text = message;
-        if (isAction) {
-            text = ChatForm::ACTION_PREFIX + text;
-        }
-        profile->getHistory()->addNewMessage(publicKey, text, publicKey, timestamp, true, name);
+    friendMessageDispatchers[f->getPublicKey()]->onMessageReceived(isAction, message);
+}
+
+void Widget::onReceiptReceived(int friendId, ReceiptNum receipt)
+{
+    const auto& friendKey = FriendList::id2Key(friendId);
+    Friend* f = FriendList::findFriend(friendKey);
+    if (!f) {
+        return;
     }
 
-    newFriendMessageAlert(friendId, message);
+    friendMessageDispatchers[f->getPublicKey()]->onReceiptReceived(receipt);
 }
 
 void Widget::addFriendDialog(const Friend* frnd, ContentDialog* dialog)
@@ -1524,6 +1650,15 @@ void Widget::onFriendRequestReceived(const ToxPk& friendPk, const QString& messa
     }
 }
 
+void Widget::onFileReceiveRequested(const ToxFile& file)
+{
+    const ToxPk& friendPk = FriendList::id2Key(file.friendId);
+    newFriendMessageAlert(friendPk,
+                          file.fileName + " ("
+                              + FileTransferWidget::getHumanReadableSize(file.filesize) + ")",
+                          true, true);
+}
+
 void Widget::updateFriendActivity(const Friend* frnd)
 {
     const ToxPk& pk = frnd->getPublicKey();
@@ -1557,6 +1692,8 @@ void Widget::removeFriend(Friend* f, bool fake)
         activeChatroomWidget = nullptr;
         onAddClicked();
     }
+
+    friendAlertConnections.remove(friendPk);
 
     contactListWidget->removeFriendWidget(widget);
 
@@ -1788,26 +1925,8 @@ void Widget::onGroupMessageReceived(int groupnumber, int peernumber, const QStri
     assert(g);
 
     ToxPk author = core->getGroupPeerPk(groupnumber, peernumber);
-    bool isSelf = author == core->getSelfId().getPublicKey();
 
-    if (settings.getBlackList().contains(author.toString())) {
-        qDebug() << "onGroupMessageReceived: Filtered:" << author.toString();
-        return;
-    }
-
-    const auto mention = !core->getUsername().isEmpty()
-                         && (message.contains(nameMention) || message.contains(sanitizedNameMention));
-    const auto targeted = !isSelf && mention;
-    const auto date = QDateTime::currentDateTime();
-    auto form = groupChatForms[groupId].data();
-
-    if (targeted && !isAction) {
-        form->addAlertMessage(author, message, date, true);
-    } else {
-        form->addMessage(author, message, date, isAction, true);
-    }
-
-    newGroupMessageAlert(groupId, author, message, targeted || settings.getGroupAlwaysNotify());
+    groupMessageDispatchers[groupId]->onMessageReceived(author, isAction, message);
 }
 
 void Widget::onGroupPeerlistChanged(uint32_t groupnumber)
@@ -1900,6 +2019,8 @@ void Widget::removeGroup(Group* g, bool fake)
         onAddClicked();
     }
 
+    groupAlertConnections.remove(groupId);
+
     contactListWidget->reDraw();
 }
 
@@ -1923,7 +2044,36 @@ Group* Widget::createGroup(uint32_t groupnumber, const GroupId& groupId)
     std::shared_ptr<GroupChatroom> chatroom(new GroupChatroom(newgroup));
     const auto compact = settings.getCompactLayout();
     auto widget = new GroupWidget(chatroom, compact);
-    auto form = new GroupChatForm(newgroup);
+    auto messageProcessor = MessageProcessor(&sharedMessageProcessorParams);
+    auto messageDispatcher =
+        std::make_shared<GroupMessageDispatcher>(newgroup, std::move(messageProcessor));
+    auto groupChatLog = std::make_shared<SessionChatLog>(*core);
+
+    connect(messageDispatcher.get(), &IMessageDispatcher::messageReceived, groupChatLog.get(),
+            &SessionChatLog::onMessageReceived);
+    connect(messageDispatcher.get(), &IMessageDispatcher::messageSent, groupChatLog.get(),
+            &SessionChatLog::onMessageSent);
+    connect(messageDispatcher.get(), &IMessageDispatcher::messageComplete, groupChatLog.get(),
+            &SessionChatLog::onMessageComplete);
+
+    auto notifyReceivedCallback = [this, groupId](const ToxPk& author, const Message& message) {
+        auto isTargeted = std::any_of(message.metadata.begin(), message.metadata.end(),
+                                      [](MessageMetadata metadata) {
+                                          return metadata.type == MessageMetadataType::selfMention;
+                                      });
+        newGroupMessageAlert(groupId, author, message.content,
+                             isTargeted || settings.getGroupAlwaysNotify());
+    };
+
+    auto notifyReceivedConnection =
+        connect(messageDispatcher.get(), &IMessageDispatcher::messageReceived, notifyReceivedCallback);
+    groupAlertConnections.insert(groupId, notifyReceivedConnection);
+
+    auto form = new GroupChatForm(newgroup, *groupChatLog, *messageDispatcher);
+    connect(&settings, &Settings::nameColorsChanged, form, &GenericChatForm::setColorizedNames);
+    form->setColorizedNames(settings.getEnableGroupChatsColor());
+    groupMessageDispatchers[groupId] = messageDispatcher;
+    groupChatLogs[groupId] = groupChatLog;
     groupWidgets[groupId] = widget;
     groupChatrooms[groupId] = chatroom;
     groupChatForms[groupId] = QSharedPointer<GroupChatForm>(form);
@@ -1942,8 +2092,6 @@ Group* Widget::createGroup(uint32_t groupnumber, const GroupId& groupId)
     connect(widget, &GroupWidget::removeGroup, this, widgetRemoveGroup);
     connect(widget, &GroupWidget::middleMouseClicked, this, [=]() { removeGroup(groupId); });
     connect(widget, &GroupWidget::chatroomWidgetClicked, form, &ChatForm::focusInput);
-    connect(form, &GroupChatForm::sendMessage, core, &Core::sendGroupMessage);
-    connect(form, &GroupChatForm::sendAction, core, &Core::sendGroupAction);
     connect(newgroup, &Group::titleChangedByUser, this, &Widget::titleChangedByUser);
     connect(this, &Widget::changeGroupTitle, core, &Core::changeGroupTitle);
     connect(core, &Core::usernameSet, newgroup, &Group::setSelfName);
@@ -2215,7 +2363,7 @@ void Widget::clearAllReceipts()
 {
     QList<Friend*> frnds = FriendList::getAllFriends();
     for (Friend* f : frnds) {
-        chatForms[f->getPublicKey()]->getOfflineMsgEngine()->removeAllMessages();
+        friendMessageDispatchers[f->getPublicKey()]->clearOutgoingMessages();
     }
 }
 

@@ -32,18 +32,19 @@ class TabCompleter;
 class FlowLayout;
 class QTimer;
 class GroupId;
+class IMessageDispatcher;
+class Message;
 
 class GroupChatForm : public GenericChatForm
 {
     Q_OBJECT
 public:
-    explicit GroupChatForm(Group* chatGroup);
+    explicit GroupChatForm(Group* chatGroup, IChatLog& chatLog, IMessageDispatcher& messageDispatcher);
     ~GroupChatForm();
 
     void peerAudioPlaying(ToxPk peerPk);
 
 private slots:
-    void onSendTriggered() override;
     void onScreenshotClicked() override;
     void onAttachClicked() override;
     void onMicMuteToggle();
@@ -53,9 +54,6 @@ private slots:
     void onUserLeft(const ToxPk& user, const QString& name);
     void onPeerNameChanged(const ToxPk& peer, const QString& oldName, const QString& newName);
     void onTitleChanged(const QString& author, const QString& title);
-    void searchInBegin(const QString& phrase, const ParameterSearch& parameter) override;
-    void onSearchUp(const QString& phrase, const ParameterSearch& parameter) override;
-    void onSearchDown(const QString& phrase, const ParameterSearch& parameter) override;
     void onLabelContextMenuRequested(const QPoint& localPos);
 
 protected:
@@ -70,7 +68,6 @@ private:
     void retranslateUi();
     void updateUserCount(int numPeers);
     void updateUserNames();
-    void sendJoinLeaveMessages();
     void leaveGroupCall();
 
 private:

@@ -116,7 +116,7 @@ bool AboutFriend::isHistoryExistence()
     History* const history = Nexus::getProfile()->getHistory();
     if (history) {
         const ToxPk pk = f->getPublicKey();
-        return history->isHistoryExistence(pk.toString());
+        return history->historyExists(pk);
     }
 
     return false;

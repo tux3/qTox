@@ -42,19 +42,10 @@ class FileTransferWidget : public QWidget
 public:
     explicit FileTransferWidget(QWidget* parent, ToxFile file);
     virtual ~FileTransferWidget();
-    void autoAcceptTransfer(const QString& path);
     bool isActive() const;
     static QString getHumanReadableSize(qint64 size);
 
-protected slots:
-    void onFileTransferInfo(ToxFile file);
-    void onFileTransferAccepted(ToxFile file);
-    void onFileTransferCancelled(ToxFile file);
-    void onFileTransferPaused(ToxFile file);
-    void onFileTransferResumed(ToxFile file);
-    void onFileTransferFinished(ToxFile file);
-    void fileTransferRemotePausedUnpaused(ToxFile file, bool paused);
-    void fileTransferBrokenUnbroken(ToxFile file, bool broken);
+    void onFileTransferUpdate(ToxFile file);
 
 protected:
     void updateWidgetColor(ToxFile const& file);

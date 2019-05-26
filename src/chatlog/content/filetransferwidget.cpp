@@ -88,20 +88,6 @@ FileTransferWidget::FileTransferWidget(QWidget* parent, ToxFile file)
 
     CoreFile* coreFile = Core::getInstance()->getCoreFile();
 
-    connect(coreFile, &CoreFile::fileTransferInfo, this,
-            &FileTransferWidget::onFileTransferInfo);
-    connect(coreFile, &CoreFile::fileTransferAccepted, this,
-            &FileTransferWidget::onFileTransferAccepted);
-    connect(coreFile, &CoreFile::fileTransferCancelled, this,
-            &FileTransferWidget::onFileTransferCancelled);
-    connect(coreFile, &CoreFile::fileTransferPaused, this,
-            &FileTransferWidget::onFileTransferPaused);
-    connect(coreFile, &CoreFile::fileTransferFinished, this,
-            &FileTransferWidget::onFileTransferFinished);
-    connect(coreFile, &CoreFile::fileTransferRemotePausedUnpaused, this,
-            &FileTransferWidget::fileTransferRemotePausedUnpaused);
-    connect(coreFile, &CoreFile::fileTransferBrokenUnbroken, this,
-            &FileTransferWidget::fileTransferBrokenUnbroken);
     connect(ui->leftButton, &QPushButton::clicked, this, &FileTransferWidget::onLeftButtonClicked);
     connect(ui->rightButton, &QPushButton::clicked, this, &FileTransferWidget::onRightButtonClicked);
     connect(ui->previewButton, &QPushButton::clicked, this,
@@ -133,30 +119,9 @@ bool FileTransferWidget::tryRemoveFile(const QString& filepath)
     return writable;
 }
 
-void FileTransferWidget::autoAcceptTransfer(const QString& path)
+void FileTransferWidget::onFileTransferUpdate(ToxFile file)
 {
-    QString filepath;
-    int number = 0;
-
-    QString suffix = QFileInfo(fileInfo.fileName).completeSuffix();
-    QString base = QFileInfo(fileInfo.fileName).baseName();
-
-    do {
-        filepath = QString("%1/%2%3.%4")
-                       .arg(path, base,
-                            number > 0 ? QString(" (%1)").arg(QString::number(number)) : QString(),
-                            suffix);
-        ++number;
-    } while (QFileInfo(filepath).exists());
-
-    // Do not automatically accept the file-transfer if the path is not writable.
-    // The user can still accept it manually.
-    if (tryRemoveFile(filepath)) {
-        CoreFile* coreFile = Core::getInstance()->getCoreFile();
-        coreFile->acceptFileRecvRequest(fileInfo.friendId, fileInfo.fileNum, filepath);
-    } else {
-        qWarning() << "Cannot write to " << filepath;
-    }
+    updateWidget(file);
 }
 
 bool FileTransferWidget::isActive() const
@@ -262,53 +227,6 @@ void FileTransferWidget::paintEvent(QPaintEvent*)
         painter.setBrush(QBrush(buttonColor));
         painter.setClipRect(QRect(width() - buttonFieldWidth, 0, buttonFieldWidth, buttonFieldWidth));
         painter.drawRoundRect(geometry(), r * ratio, r);
-    }
-}
-
-void FileTransferWidget::onFileTransferInfo(ToxFile file)
-{
-    updateWidget(file);
-}
-
-void FileTransferWidget::onFileTransferAccepted(ToxFile file)
-{
-    updateWidget(file);
-}
-
-void FileTransferWidget::onFileTransferCancelled(ToxFile file)
-{
-    updateWidget(file);
-}
-
-void FileTransferWidget::onFileTransferPaused(ToxFile file)
-{
-    updateWidget(file);
-}
-
-void FileTransferWidget::onFileTransferResumed(ToxFile file)
-{
-    updateWidget(file);
-}
-
-void FileTransferWidget::onFileTransferFinished(ToxFile file)
-{
-    updateWidget(file);
-}
-
-void FileTransferWidget::fileTransferRemotePausedUnpaused(ToxFile file, bool paused)
-{
-    if (paused) {
-        onFileTransferPaused(file);
-    } else {
-        onFileTransferResumed(file);
-    }
-}
-
-void FileTransferWidget::fileTransferBrokenUnbroken(ToxFile file, bool broken)
-{
-    // TODO: Handle broken transfer differently once we have resuming code
-    if (broken) {
-        onFileTransferCancelled(file);
     }
 }
 
@@ -737,9 +655,7 @@ void FileTransferWidget::applyTransformation(const int orientation, QImage& imag
 
 void FileTransferWidget::updateWidget(ToxFile const& file)
 {
-    if (fileInfo != file) {
-        return;
-    }
+    assert(file == fileInfo);
 
     fileInfo = file;
 

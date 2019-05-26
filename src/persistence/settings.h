@@ -199,6 +199,7 @@ signals:
 
     // GUI
     void autoLoginChanged(bool enabled);
+    void nameColorsChanged(bool enabled);
     void separateWindowChanged(bool enabled);
     void showSystemTrayChanged(bool enabled);
     bool minimizeOnCloseChanged(bool enabled);

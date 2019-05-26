@@ -22,6 +22,7 @@
 
 #include "src/chatlog/chatmessage.h"
 #include "src/core/toxpk.h"
+#include "src/model/ichatlog.h"
 #include "src/widget/searchtypes.h"
 
 #include <QMenu>
@@ -51,6 +52,9 @@ class QSplitter;
 class QToolButton;
 class QVBoxLayout;
 
+class IMessageDispatcher;
+class Message;
+
 namespace Ui {
 class MainWindow;
 }
@@ -65,7 +69,8 @@ class GenericChatForm : public QWidget
 {
     Q_OBJECT
 public:
-    explicit GenericChatForm(const Contact* contact, QWidget* parent = nullptr);
+    GenericChatForm(const Contact* contact, IChatLog& chatLog,
+                    IMessageDispatcher& messageDispatcher, QWidget* parent = nullptr);
     ~GenericChatForm() override;
 
     void setName(const QString& newName);
@@ -75,34 +80,28 @@ public:
     virtual void show(ContentLayout* contentLayout);
     virtual void reloadTheme();
 
-    void addMessage(const ToxPk& author, const QString& message, const QDateTime& datetime,
-                    bool isAction, bool colorizeName = false);
-    void addSelfMessage(const QString& message, const QDateTime& datetime, bool isAction);
     void addSystemInfoMessage(const QString& message, ChatMessage::SystemMessageType type,
                               const QDateTime& datetime);
-    void addAlertMessage(const ToxPk& author, const QString& message, const QDateTime& datetime, bool colorizeName = false);
     static QString resolveToxPk(const ToxPk& pk);
     QDateTime getLatestTime() const;
     QDateTime getFirstTime() const;
 
 signals:
-    void sendMessage(uint32_t, QString);
-    void sendAction(uint32_t, QString);
     void messageInserted();
     void messageNotFoundShow(SearchDirection direction);
 
 public slots:
     void focusInput();
     void onChatMessageFontChanged(const QFont& font);
+    void setColorizedNames(bool enable);
 
 protected slots:
     void onChatContextMenuRequested(QPoint pos);
     virtual void onScreenshotClicked() = 0;
-    virtual void onSendTriggered() = 0;
+    void onSendTriggered();
     virtual void onAttachClicked() = 0;
     void onEmoteButtonClicked();
     void onEmoteInsertRequested(QString str);
-    void onSaveLogClicked();
     void onCopyLogClicked();
     void clearChatArea();
     void clearChatArea(bool confirm, bool inform);
@@ -113,26 +112,29 @@ protected slots:
     void onSplitterMoved(int pos, int index);
     void quoteSelectedText();
     void copyLink();
+    void onLoadHistory();
+    void onExportChat();
     void searchFormShow();
     void onSearchTriggered();
     void updateShowDateInfo(const ChatLine::Ptr& line);
 
-    virtual void searchInBegin(const QString& phrase, const ParameterSearch& parameter) = 0;
-    virtual void onSearchUp(const QString& phrase, const ParameterSearch& parameter) = 0;
-    virtual void onSearchDown(const QString& phrase, const ParameterSearch& parameter) = 0;
-    void onContinueSearch();
+    void searchInBegin(const QString& phrase, const ParameterSearch& parameter);
+    void onSearchUp(const QString& phrase, const ParameterSearch& parameter);
+    void onSearchDown(const QString& phrase, const ParameterSearch& parameter);
+    void handleSearchResult(SearchResult result, SearchDirection direction);
+    void renderMessage(ChatLogIdx idx);
+    void renderMessages(ChatLogIdx begin, ChatLogIdx end,
+                        std::function<void(void)> onCompletion = std::function<void(void)>());
 
 private:
     void retranslateUi();
-    void addSystemDateMessage();
+    void addSystemDateMessage(const QDate& date);
     QDateTime getTime(const ChatLine::Ptr& chatLine) const;
 
 protected:
     ChatMessage::Ptr createMessage(const ToxPk& author, const QString& message,
                                    const QDateTime& datetime, bool isAction, bool isSent, bool colorizeName = false);
-    ChatMessage::Ptr createSelfMessage(const QString& message, const QDateTime& datetime,
-                                       bool isAction, bool isSent);
-    bool needsToHideName(const ToxPk& messageAuthor, const QDateTime& messageTime) const;
+    bool needsToHideName(ChatLogIdx idx) const;
     void showNetcam();
     void hideNetcam();
     virtual GenericNetCamView* createNetcam() = 0;
@@ -152,15 +154,15 @@ protected:
     bool audioOutputFlag;
     int curRow;
 
-    QAction* saveChatAction;
     QAction* clearAction;
     QAction* quoteAction;
     QAction* copyLinkAction;
     QAction* searchAction;
+    QAction* loadHistoryAction;
+    QAction* exportChatAction;
 
     ToxPk previousId;
 
-    QDateTime prevMsgDateTime;
     QDateTime earliestMessage;
 
     QMenu menu;
@@ -185,8 +187,11 @@ protected:
     GenericNetCamView* netcam;
     Widget* parent;
 
-    QPoint searchPoint;
-    bool searchAfterLoadHistory;
+    IChatLog& chatLog;
+    IMessageDispatcher& messageDispatcher;
+    SearchPos searchPos;
+    std::map<ChatLogIdx, ChatMessage::Ptr> messages;
+    bool colorizeNames = false;
 };
 
 #endif // GENERICCHATFORM_H

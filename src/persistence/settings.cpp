@@ -2331,7 +2331,10 @@ void Settings::setAutoLogin(bool state)
 void Settings::setEnableGroupChatsColor(bool state)
 {
     QMutexLocker locker{&bigLock};
-    nameColors = state;
+    if (state != nameColors) {
+        nameColors = state;
+        emit nameColorsChanged(nameColors);
+    }
 }
 
 bool Settings::getEnableGroupChatsColor() const

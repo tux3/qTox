@@ -36,6 +36,8 @@
 #include "src/core/toxfile.h"
 #include "src/core/toxid.h"
 #include "src/core/toxpk.h"
+#include "src/model/friendmessagedispatcher.h"
+#include "src/model/groupmessagedispatcher.h"
 #if DESKTOP_NOTIFICATIONS
 #include "src/platform/desktop_notifications/desktopnotify.h"
 #endif
@@ -79,6 +81,8 @@ class SystemTrayIcon;
 class VideoSurface;
 class UpdateCheck;
 class Settings;
+class IChatLog;
+class ChatHistory;
 
 class Widget final : public QMainWindow
 {
@@ -135,7 +139,6 @@ public:
     static void confirmExecutableOpen(const QFileInfo& file);
 
     void clearAllReceipts();
-    void reloadHistory();
 
     void reloadTheme();
     static inline QIcon prepareIcon(QString path, int w = 0, int h = 0);
@@ -167,7 +170,9 @@ public slots:
     void onFriendUsernameChanged(int friendId, const QString& username);
     void onFriendAliasChanged(const ToxPk& friendId, const QString& alias);
     void onFriendMessageReceived(uint32_t friendnumber, const QString& message, bool isAction);
+    void onReceiptReceived(int friendId, ReceiptNum receipt);
     void onFriendRequestReceived(const ToxPk& friendPk, const QString& message);
+    void onFileReceiveRequested(const ToxFile& file);
     void updateFriendActivity(const Friend* frnd);
     void onEmptyGroupCreated(uint32_t groupnumber, const GroupId& groupId, const QString& title);
     void onGroupJoined(int groupNum, const GroupId& groupId);
@@ -230,6 +235,9 @@ private slots:
     void incomingNotification(uint32_t friendId);
     void onRejectCall(uint32_t friendId);
     void onStopNotification();
+    void dispatchFile(ToxFile file);
+    void dispatchFileWithBool(ToxFile file, bool);
+    void dispatchFileSendFailed(uint32_t friendId, const QString& fileName);
 
 private:
     // QMainWindow overrides
@@ -305,7 +313,6 @@ private:
     bool notify(QObject* receiver, QEvent* event);
     bool autoAwayActive = false;
     QTimer* timer;
-    QRegExp nameMention, sanitizedNameMention;
     bool eventFlag;
     bool eventIcon;
     bool wasMaximized = false;
@@ -319,14 +326,32 @@ private:
     Settings& settings;
 
     QMap<ToxPk, FriendWidget*> friendWidgets;
+    // Shared pointer because qmap copies stuff all over the place
+    QMap<ToxPk, std::shared_ptr<FriendMessageDispatcher>> friendMessageDispatchers;
+    // Stop gap method of linking our friend messages back to a group id.
+    // Eventual goal is to have a notification manager that works on
+    // Messages hooked up to message dispatchers but we aren't there
+    // yet
+    QMap<ToxPk, QMetaObject::Connection> friendAlertConnections;
+    QMap<ToxPk, std::shared_ptr<ChatHistory>> friendChatLogs;
     QMap<ToxPk, std::shared_ptr<FriendChatroom>> friendChatrooms;
     QMap<ToxPk, ChatForm*> chatForms;
 
     QMap<GroupId, GroupWidget*> groupWidgets;
+    QMap<GroupId, std::shared_ptr<GroupMessageDispatcher>> groupMessageDispatchers;
+
+    // Stop gap method of linking our group messages back to a group id.
+    // Eventual goal is to have a notification manager that works on
+    // Messages hooked up to message dispatchers but we aren't there
+    // yet
+    QMap<GroupId, QMetaObject::Connection> groupAlertConnections;
+    QMap<GroupId, std::shared_ptr<IChatLog>> groupChatLogs;
     QMap<GroupId, std::shared_ptr<GroupChatroom>> groupChatrooms;
     QMap<GroupId, QSharedPointer<GroupChatForm>> groupChatForms;
     Core* core = nullptr;
 
+
+    MessageProcessor::SharedParams sharedMessageProcessorParams;
 #if DESKTOP_NOTIFICATIONS
     DesktopNotify notifier;
 #endif

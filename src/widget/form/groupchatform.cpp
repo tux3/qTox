@@ -82,8 +82,8 @@ QString editName(const QString& name)
  * @brief Timeout = peer stopped sending audio.
  */
 
-GroupChatForm::GroupChatForm(Group* chatGroup)
-    : GenericChatForm (chatGroup)
+GroupChatForm::GroupChatForm(Group* chatGroup, IChatLog& chatLog, IMessageDispatcher& messageDispatcher)
+    : GenericChatForm(chatGroup, chatLog, messageDispatcher)
     , group(chatGroup)
     , inCall(false)
 {
@@ -118,8 +118,6 @@ GroupChatForm::GroupChatForm(Group* chatGroup)
     //nameLabel->setMinimumHeight(12);
     nusersLabel->setMinimumHeight(12);
 
-    connect(sendButton, SIGNAL(clicked()), this, SLOT(onSendTriggered()));
-    connect(msgEdit, SIGNAL(enterPressed()), this, SLOT(onSendTriggered()));
     connect(msgEdit, &ChatTextEdit::tabPressed, tabber, &TabCompleter::complete);
     connect(msgEdit, &ChatTextEdit::keyPressed, tabber, &TabCompleter::reset);
     connect(headWidget, &ChatFormHeader::callTriggered, this, &GroupChatForm::onCallClicked);
@@ -143,31 +141,6 @@ GroupChatForm::~GroupChatForm()
     Translator::unregister(this);
 }
 
-void GroupChatForm::onSendTriggered()
-{
-    QString msg = msgEdit->toPlainText();
-    if (msg.isEmpty())
-        return;
-
-    msgEdit->setLastMessage(msg);
-    msgEdit->clear();
-
-    if (group->getPeersCount() != 1) {
-        if (msg.startsWith(ChatForm::ACTION_PREFIX, Qt::CaseInsensitive)) {
-            msg.remove(0, ChatForm::ACTION_PREFIX.length());
-            emit sendAction(group->getId(), msg);
-        } else {
-            emit sendMessage(group->getId(), msg);
-        }
-    } else {
-        if (msg.startsWith(ChatForm::ACTION_PREFIX, Qt::CaseInsensitive))
-            addSelfMessage(msg.mid(ChatForm::ACTION_PREFIX.length()), QDateTime::currentDateTime(),
-                           true);
-        else
-            addSelfMessage(msg, QDateTime::currentDateTime(), false);
-    }
-}
-
 void GroupChatForm::onTitleChanged(const QString& author, const QString& title)
 {
     if (author.isEmpty()) {
@@ -177,33 +150,6 @@ void GroupChatForm::onTitleChanged(const QString& author, const QString& title)
     const QString message = tr("%1 has set the title to %2").arg(author, title);
     const QDateTime curTime = QDateTime::currentDateTime();
     addSystemInfoMessage(message, ChatMessage::INFO, curTime);
-}
-
-void GroupChatForm::searchInBegin(const QString& phrase, const ParameterSearch& parameter)
-{
-    disableSearchText();
-
-    searchPoint = QPoint(1, -1);
-
-    if (parameter.period == PeriodSearch::WithTheFirst || parameter.period == PeriodSearch::AfterDate) {
-        onSearchDown(phrase, parameter);
-    } else {
-        onSearchUp(phrase, parameter);
-    }
-}
-
-void GroupChatForm::onSearchUp(const QString& phrase, const ParameterSearch& parameter)
-{
-    if (!searchInText(phrase, parameter, SearchDirection::Up)) {
-        emit messageNotFoundShow(SearchDirection::Up);
-    }
-}
-
-void GroupChatForm::onSearchDown(const QString& phrase, const ParameterSearch& parameter)
-{
-    if (!searchInText(phrase, parameter, SearchDirection::Down)) {
-        emit messageNotFoundShow(SearchDirection::Down);
-    }
 }
 
 void GroupChatForm::onScreenshotClicked()

@@ -19,17 +19,18 @@
 
 #include "loadhistorydialog.h"
 #include "ui_loadhistorydialog.h"
+#include "src/model/ichatlog.h"
 #include "src/nexus.h"
 #include "src/persistence/history.h"
 #include "src/persistence/profile.h"
+#include <QCalendarWidget>
 #include <QDate>
 #include <QTextCharFormat>
-#include <QCalendarWidget>
 
-LoadHistoryDialog::LoadHistoryDialog(const ToxPk& friendPk, QWidget* parent)
+LoadHistoryDialog::LoadHistoryDialog(const IChatLog* chatLog, QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::LoadHistoryDialog)
-    , friendPk(friendPk)
+    , chatLog(chatLog)
 {
     ui->setupUi(this);
     highlightDates(QDate::currentDate().year(), QDate::currentDate().month());
@@ -76,15 +77,17 @@ void LoadHistoryDialog::highlightDates(int year, int month)
     History* history = Nexus::getProfile()->getHistory();
     QDate monthStart(year, month, 1);
     QDate monthEnd(year, month + 1, 1);
-    QList<History::DateMessages> counts =
-        history->getChatHistoryCounts(this->friendPk, monthStart, monthEnd);
+
+    // Max 31 days in a month
+    auto dateIdxs = chatLog->getDateIdxs(monthStart, 31);
 
     QTextCharFormat format;
     format.setFontWeight(QFont::Bold);
 
     QCalendarWidget* calendar = ui->fromDate;
-    for (History::DateMessages p : counts) {
-        format.setToolTip(tr("%1 messages").arg(p.count));
-        calendar->setDateTextFormat(monthStart.addDays(p.offsetDays), format);
+    for (const auto& item : dateIdxs) {
+        if (item.date < monthEnd) {
+            calendar->setDateTextFormat(item.date, format);
+        }
     }
 }

@@ -19,13 +19,15 @@
 
 #include "genericchatform.h"
 
+#include "src/chatlog/chatlinecontentproxy.h"
 #include "src/chatlog/chatlog.h"
+#include "src/chatlog/content/filetransferwidget.h"
 #include "src/chatlog/content/timestamp.h"
 #include "src/core/core.h"
-#include "src/model/friend.h"
 #include "src/friendlist.h"
-#include "src/model/group.h"
 #include "src/grouplist.h"
+#include "src/model/friend.h"
+#include "src/model/group.h"
 #include "src/persistence/settings.h"
 #include "src/persistence/smileypack.h"
 #include "src/video/genericnetcamview.h"
@@ -34,13 +36,15 @@
 #include "src/widget/contentdialogmanager.h"
 #include "src/widget/contentlayout.h"
 #include "src/widget/emoticonswidget.h"
+#include "src/widget/form/chatform.h"
+#include "src/widget/form/loadhistorydialog.h"
 #include "src/widget/maskablepixmapwidget.h"
+#include "src/widget/searchform.h"
 #include "src/widget/style.h"
 #include "src/widget/tool/chattextedit.h"
 #include "src/widget/tool/flyoutoverlaywidget.h"
 #include "src/widget/translator.h"
 #include "src/widget/widget.h"
-#include "src/widget/searchform.h"
 
 #include <QClipboard>
 #include <QFileDialog>
@@ -127,13 +131,129 @@ QPushButton* createButton(const QString& name, T* self, Fun onClickSlot)
     return btn;
 }
 
+ChatMessage::Ptr getChatMessageForIdx(ChatLogIdx idx,
+                                      const std::map<ChatLogIdx, ChatMessage::Ptr>& messages)
+{
+    auto existingMessageIt = messages.find(idx);
+
+    if (existingMessageIt == messages.end()) {
+        return ChatMessage::Ptr();
+    }
+
+    return existingMessageIt->second;
 }
 
-GenericChatForm::GenericChatForm(const Contact* contact, QWidget* parent)
+bool shouldRenderDate(ChatLogIdx idxToRender, const IChatLog& chatLog)
+{
+    if (idxToRender == chatLog.getFirstIdx())
+        return true;
+
+    return chatLog.at(idxToRender - 1).getTimestamp().date()
+           != chatLog.at(idxToRender).getTimestamp().date();
+}
+
+ChatMessage::Ptr dateMessageForItem(const ChatLogItem& item)
+{
+    const auto& s = Settings::getInstance();
+    const auto date = item.getTimestamp().date();
+    auto dateText = date.toString(s.getDateFormat());
+    return ChatMessage::createChatInfoMessage(dateText, ChatMessage::INFO, QDateTime());
+}
+
+ChatMessage::Ptr createMessage(const QString& displayName, bool isSelf, bool colorizeNames,
+                               const ChatLogMessage& chatLogMessage)
+{
+    auto messageType = chatLogMessage.message.isAction ? ChatMessage::MessageType::ACTION
+                                                       : ChatMessage::MessageType::NORMAL;
+
+    const bool bSelfMentioned =
+        std::any_of(chatLogMessage.message.metadata.begin(), chatLogMessage.message.metadata.end(),
+                    [](const MessageMetadata& metadata) {
+                        return metadata.type == MessageMetadataType::selfMention;
+                    });
+
+    if (bSelfMentioned) {
+        messageType = ChatMessage::MessageType::ALERT;
+    }
+
+    // Spinner is displayed by passing in an empty date
+    auto timestamp = chatLogMessage.isComplete ? chatLogMessage.message.timestamp : QDateTime();
+
+    return ChatMessage::createChatMessage(displayName, chatLogMessage.message.content, messageType,
+                                          isSelf, timestamp, colorizeNames);
+}
+
+void renderMessage(const QString& displayName, bool isSelf, bool colorizeNames,
+                   const ChatLogMessage& chatLogMessage, ChatMessage::Ptr& chatMessage)
+{
+
+    if (chatMessage) {
+        if (chatLogMessage.isComplete) {
+            chatMessage->markAsSent(chatLogMessage.message.timestamp);
+        }
+    } else {
+        chatMessage = createMessage(displayName, isSelf, colorizeNames, chatLogMessage);
+    }
+}
+
+void renderFile(QString displayName, ToxFile file, bool isSelf, QDateTime timestamp,
+                ChatMessage::Ptr& chatMessage)
+{
+    if (!chatMessage) {
+        chatMessage = ChatMessage::createFileTransferMessage(displayName, file, isSelf, timestamp);
+    } else {
+        auto proxy = static_cast<ChatLineContentProxy*>(chatMessage->getContent(1));
+        assert(proxy->getWidgetType() == ChatLineContentProxy::FileTransferWidgetType);
+        auto ftWidget = static_cast<FileTransferWidget*>(proxy->getWidget());
+        ftWidget->onFileTransferUpdate(file);
+    }
+}
+
+void renderItem(const ChatLogItem& item, bool hideName, bool colorizeNames, ChatMessage::Ptr& chatMessage)
+{
+    const auto& sender = item.getSender();
+
+    const Core* core = Core::getInstance();
+    bool isSelf = sender == core->getSelfId().getPublicKey();
+
+    switch (item.getContentType()) {
+    case ChatLogItem::ContentType::message: {
+        const auto& chatLogMessage = item.getContentAsMessage();
+
+        renderMessage(item.getDisplayName(), isSelf, colorizeNames, chatLogMessage, chatMessage);
+
+        break;
+    }
+    case ChatLogItem::ContentType::fileTransfer: {
+        const auto& file = item.getContentAsFile();
+        renderFile(item.getDisplayName(), file.file, isSelf, item.getTimestamp(), chatMessage);
+        break;
+    }
+    }
+
+    if (hideName) {
+        chatMessage->hideSender();
+    }
+}
+
+ChatLogIdx firstItemAfterDate(QDate date, const IChatLog& chatLog)
+{
+    auto idxs = chatLog.getDateIdxs(date, 1);
+    if (idxs.size()) {
+        return idxs[0].idx;
+    } else {
+        return chatLog.getNextIdx();
+    }
+}
+} // namespace
+
+GenericChatForm::GenericChatForm(const Contact* contact, IChatLog& chatLog,
+                                 IMessageDispatcher& messageDispatcher, QWidget* parent)
     : QWidget(parent, Qt::Window)
     , audioInputFlag(false)
     , audioOutputFlag(false)
-    , searchAfterLoadHistory(false)
+    , chatLog(chatLog)
+    , messageDispatcher(messageDispatcher)
 {
     curRow = 0;
     headWidget = new ChatFormHeader();
@@ -219,8 +339,6 @@ GenericChatForm::GenericChatForm(const Contact* contact, QWidget* parent)
     menu.addActions(chatWidget->actions());
     menu.addSeparator();
 
-    saveChatAction = menu.addAction(QIcon::fromTheme("document-save"), QString(),
-                                    this, SLOT(onSaveLogClicked()));
     clearAction = menu.addAction(QIcon::fromTheme("edit-clear"), QString(),
                                  this, SLOT(clearChatArea()),
                                  QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_L));
@@ -228,6 +346,9 @@ GenericChatForm::GenericChatForm(const Contact* contact, QWidget* parent)
 
     copyLinkAction = menu.addAction(QIcon(), QString(), this, SLOT(copyLink()));
     menu.addSeparator();
+
+    loadHistoryAction = menu.addAction(QIcon(), QString(), this, SLOT(onLoadHistory()));
+    exportChatAction = menu.addAction(QIcon::fromTheme("document-save"), QString(), this, SLOT(onExportChat()));
 
     connect(chatWidget, &ChatLog::customContextMenuRequested, this,
             &GenericChatForm::onChatContextMenuRequested);
@@ -239,7 +360,9 @@ GenericChatForm::GenericChatForm(const Contact* contact, QWidget* parent)
     connect(searchForm, &SearchForm::visibleChanged, this, &GenericChatForm::onSearchTriggered);
     connect(this, &GenericChatForm::messageNotFoundShow, searchForm, &SearchForm::showMessageNotFound);
 
-    connect(chatWidget, &ChatLog::workerTimeoutFinished, this, &GenericChatForm::onContinueSearch);
+    connect(&chatLog, &IChatLog::itemUpdated, this, &GenericChatForm::renderMessage);
+
+    connect(msgEdit, &ChatTextEdit::enterPressed, this, &GenericChatForm::onSendTriggered);
 
     reloadTheme();
 
@@ -253,6 +376,11 @@ GenericChatForm::GenericChatForm(const Contact* contact, QWidget* parent)
 
     // update header on name/title change
     connect(contact, &Contact::displayedNameChanged, this, &GenericChatForm::setName);
+
+    auto chatLogIdxRange = chatLog.getNextIdx() - chatLog.getFirstIdx();
+    auto firstChatLogIdx = (chatLogIdxRange < 100) ? chatLog.getFirstIdx() : chatLog.getNextIdx() - 100;
+
+    renderMessages(firstChatLogIdx, chatLog.getNextIdx());
 
     netcam = nullptr;
 }
@@ -373,101 +501,52 @@ void GenericChatForm::onChatContextMenuRequested(QPoint pos)
     menu.exec(pos);
 }
 
+void GenericChatForm::onSendTriggered()
+{
+    auto msg = msgEdit->toPlainText();
+
+    if (msg.isEmpty()) {
+        return;
+    }
+
+    msgEdit->setLastMessage(msg);
+    msgEdit->clear();
+
+    bool isAction = msg.startsWith(ChatForm::ACTION_PREFIX, Qt::CaseInsensitive);
+    if (isAction) {
+        msg.remove(0, ChatForm::ACTION_PREFIX.length());
+    }
+
+    messageDispatcher.sendMessage(isAction, msg);
+}
+
 /**
  * @brief Show, is it needed to hide message author name or not
  * @param messageAuthor Author of the sent message
  * @oaran messageTime DateTime of the sent message
  * @return True if it's needed to hide name, false otherwise
  */
-bool GenericChatForm::needsToHideName(const ToxPk& messageAuthor, const QDateTime& messageTime) const
+bool GenericChatForm::needsToHideName(ChatLogIdx idx) const
 {
-    qint64 messagesTimeDiff = prevMsgDateTime.secsTo(messageTime);
-    return messageAuthor == previousId && messagesTimeDiff < chatWidget->repNameAfter;
-}
-
-/**
- * @brief Creates ChatMessage shared object and inserts it into ChatLog
- * @param author Author of the message
- * @param message Message text
- * @param dt Date and time when message was sent
- * @param isAction True if this is an action message, false otherwise
- * @param isSent True if message was received by your friend
- * @return ChatMessage object
- */
-ChatMessage::Ptr GenericChatForm::createMessage(const ToxPk& author, const QString& message,
-                                                const QDateTime& dt, bool isAction, bool isSent, bool colorizeName)
-{
-    const Core* core = Core::getInstance();
-    bool isSelf = author == core->getSelfId().getPublicKey();
-    QString myNickName = core->getUsername().isEmpty() ? author.toString() : core->getUsername();
-    QString authorStr = isSelf ? myNickName : resolveToxPk(author);
-    const auto now = QDateTime::currentDateTime();
-    if (getLatestTime().date() != now.date()) {
-        addSystemDateMessage();
+    // If the previous message is not rendered we should show the name
+    // regardless of other constraints
+    auto itemBefore = messages.find(idx - 1);
+    if (itemBefore == messages.end()) {
+        return false;
     }
 
-    ChatMessage::Ptr msg;
-    if (isAction) {
-        msg = ChatMessage::createChatMessage(authorStr, message, ChatMessage::ACTION, isSelf, QDateTime(), colorizeName);
-        previousId = ToxPk{};
-    } else {
-        msg = ChatMessage::createChatMessage(authorStr, message, ChatMessage::NORMAL, isSelf, QDateTime(), colorizeName);
-        if (needsToHideName(author, now)) {
-            msg->hideSender();
-        }
+    const auto& prevItem = chatLog.at(idx - 1);
+    const auto& currentItem = chatLog.at(idx);
 
-        previousId = author;
-        prevMsgDateTime = now;
+    // Always show the * in the name field for action messages
+    if (currentItem.getContentType() == ChatLogItem::ContentType::message
+        && currentItem.getContentAsMessage().message.isAction) {
+        return false;
     }
 
-    if (isSent) {
-        msg->markAsSent(dt);
-    }
-
-    insertChatMessage(msg);
-    return msg;
-}
-
-/**
- * @brief Same, as createMessage, but creates message that you will send to someone
- */
-ChatMessage::Ptr GenericChatForm::createSelfMessage(const QString& message, const QDateTime& dt,
-                                                    bool isAction, bool isSent)
-{
-    ToxPk selfPk = Core::getInstance()->getSelfId().getPublicKey();
-    return createMessage(selfPk, message, dt, isAction, isSent);
-}
-
-/**
- * @brief Inserts message into ChatLog
- */
-void GenericChatForm::addMessage(const ToxPk& author, const QString& message, const QDateTime& dt,
-                                 bool isAction, bool colorizeName)
-{
-    createMessage(author, message, dt, isAction, true, colorizeName);
-}
-
-/**
- * @brief Inserts int ChatLog message that you have sent
- */
-void GenericChatForm::addSelfMessage(const QString& message, const QDateTime& datetime, bool isAction)
-{
-    createSelfMessage(message, datetime, isAction, true);
-}
-
-void GenericChatForm::addAlertMessage(const ToxPk& author, const QString& msg, const QDateTime& dt, bool colorizeName)
-{
-    QString authorStr = resolveToxPk(author);
-    bool isSelf = author == Core::getInstance()->getSelfId().getPublicKey();
-    auto chatMsg = ChatMessage::createChatMessage(authorStr, msg, ChatMessage::ALERT, isSelf, dt, colorizeName);
-    const QDateTime newMsgDateTime = QDateTime::currentDateTime();
-    if (needsToHideName(author, newMsgDateTime)) {
-        chatMsg->hideSender();
-    }
-
-    insertChatMessage(chatMsg);
-    previousId = author;
-    prevMsgDateTime = newMsgDateTime;
+    qint64 messagesTimeDiff = prevItem.getTimestamp().secsTo(currentItem.getTimestamp());
+    return currentItem.getSender() == prevItem.getSender()
+           && messagesTimeDiff < chatWidget->repNameAfter;
 }
 
 void GenericChatForm::onEmoteButtonClicked()
@@ -498,37 +577,6 @@ void GenericChatForm::onEmoteInsertRequested(QString str)
     msgEdit->setFocus(); // refocus so that we can continue typing
 }
 
-void GenericChatForm::onSaveLogClicked()
-{
-    QString path = QFileDialog::getSaveFileName(Q_NULLPTR, tr("Save chat log"));
-    if (path.isEmpty())
-        return;
-
-    QFile file(path);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-        return;
-
-    QString plainText;
-    auto lines = chatWidget->getLines();
-    for (ChatLine::Ptr l : lines) {
-        Timestamp* rightCol = qobject_cast<Timestamp*>(l->getContent(2));
-
-        ChatLineContent* middleCol = l->getContent(1);
-        ChatLineContent* leftCol = l->getContent(0);
-
-        QString nick = leftCol->getText().isNull() ? tr("[System message]") : leftCol->getText();
-
-        QString msg = middleCol->getText();
-
-        QString timestamp = (rightCol == nullptr) ? tr("Not sent") : rightCol->getText();
-
-        plainText += QString{nick % "\t" % timestamp % "\t" % msg % "\n"};
-    }
-
-    file.write(plainText.toUtf8());
-    file.close();
-}
-
 void GenericChatForm::onCopyLogClicked()
 {
     chatWidget->copySelectedText();
@@ -549,21 +597,22 @@ void GenericChatForm::onChatMessageFontChanged(const QFont& font)
                            + fontToCss(font, "QTextEdit"));
 }
 
+void GenericChatForm::setColorizedNames(bool enable)
+{
+    colorizeNames = enable;
+}
+
 void GenericChatForm::addSystemInfoMessage(const QString& message, ChatMessage::SystemMessageType type,
                                            const QDateTime& datetime)
 {
-    if (getLatestTime().date() != QDate::currentDate()) {
-        addSystemDateMessage();
-    }
-
     previousId = ToxPk();
     insertChatMessage(ChatMessage::createChatInfoMessage(message, type, datetime));
 }
 
-void GenericChatForm::addSystemDateMessage()
+void GenericChatForm::addSystemDateMessage(const QDate& date)
 {
     const Settings& s = Settings::getInstance();
-    QString dateText = QDate::currentDate().toString(s.getDateFormat());
+    QString dateText = date.toString(s.getDateFormat());
 
     previousId = ToxPk();
     insertChatMessage(ChatMessage::createChatInfoMessage(dateText, ChatMessage::INFO, QDateTime()));
@@ -584,256 +633,14 @@ QDateTime GenericChatForm::getTime(const ChatLine::Ptr &chatLine) const
     return QDateTime();
 }
 
+
 void GenericChatForm::disableSearchText()
 {
-    if (searchPoint != QPoint(1, -1)) {
-        QVector<ChatLine::Ptr> lines = chatWidget->getLines();
-        int numLines = lines.size();
-        int index = numLines - searchPoint.x();
-        if (index >= 0 && numLines > index) {
-            ChatLine::Ptr l = lines[index];
-            if (l->getColumnCount() >= 2) {
-                ChatLineContent* content = l->getContent(1);
-                Text* text = static_cast<Text*>(content);
-                text->deselectText();
-            }
-        }
+    auto msgIt = messages.find(searchPos.logIdx);
+    if (msgIt != messages.end()) {
+        auto text = qobject_cast<Text*>(msgIt->second->getContent(1));
+        text->deselectText();
     }
-}
-
-bool GenericChatForm::searchInText(const QString& phrase, const ParameterSearch& parameter, SearchDirection direction)
-{
-    bool isSearch = false;
-
-    if (phrase.isEmpty()) {
-        disableSearchText();
-    }
-
-    auto lines = chatWidget->getLines();
-
-    if (lines.isEmpty()) {
-        return isSearch;
-    }
-
-    int numLines = lines.size();
-
-    int startLine = -1;
-
-    if (parameter.period == PeriodSearch::WithTheEnd || parameter.period == PeriodSearch::None) {
-        startLine = numLines - searchPoint.x();
-    } else if (parameter.period == PeriodSearch::WithTheFirst) {
-        startLine = 0;
-    } else if (parameter.period == PeriodSearch::AfterDate) {
-        const auto lambda = [=](const ChatLine::Ptr& item) {
-            const auto d = getTime(item).date();
-            return d.isValid() && parameter.date <= d;
-          };
-
-        const auto find = std::find_if(lines.begin(), lines.end(), lambda);
-
-        if (find != lines.end()) {
-            startLine = static_cast<int>(std::distance(lines.begin(), find));
-        }
-    } else if (parameter.period == PeriodSearch::BeforeDate) {
-#if QT_VERSION > QT_VERSION_CHECK(5, 6, 0)
-        const auto lambda = [=](const ChatLine::Ptr& item) {
-            const auto d = getTime(item).date();
-            return d.isValid() && parameter.date >= d;
-          };
-
-        const auto find = std::find_if(lines.rbegin(), lines.rend(), lambda);
-
-        if (find != lines.rend()) {
-            startLine = static_cast<int>(std::distance(find, lines.rend())) - 1;
-        }
-#else
-        for (int i = lines.size() - 1; i >= 0; --i) {
-            auto d = getTime(lines[i]).date();
-            if (d.isValid() && parameter.date >= d) {
-                startLine = i;
-                break;
-            }
-        }
-#endif
-    }
-
-    if (startLine < 0 || startLine >= numLines) {
-        return isSearch;
-    }
-
-    const bool searchUp = (direction == SearchDirection::Up);
-    for (int i = startLine; searchUp ? i >= 0 : i < numLines; searchUp ? --i : ++i) {
-        ChatLine::Ptr l = lines[i];
-
-        if (l->getColumnCount() < 2) {
-            continue;
-        }
-
-        ChatLineContent* content = l->getContent(1);
-        Text* text = static_cast<Text*>(content);
-
-        if (searchUp && searchPoint.y() == 0) {
-            text->deselectText();
-            searchPoint.setY(-1);
-
-            continue;
-        }
-
-        QString txt = content->getText();
-
-        bool find = false;
-        QRegularExpression exp;
-        QRegularExpressionMatch match;
-
-        auto flagIns = QRegularExpression::CaseInsensitiveOption | QRegularExpression::UseUnicodePropertiesOption;
-        auto flag = QRegularExpression::UseUnicodePropertiesOption;
-        switch (parameter.filter) {
-        case FilterSearch::Register:
-            find = txt.contains(phrase, Qt::CaseSensitive);
-            break;
-        case FilterSearch::WordsOnly:
-            exp = QRegularExpression(SearchExtraFunctions::generateFilterWordsOnly(phrase), flagIns);
-            find = txt.contains(exp);
-            break;
-        case FilterSearch::RegisterAndWordsOnly:
-            exp = QRegularExpression(SearchExtraFunctions::generateFilterWordsOnly(phrase), flag);
-            find = txt.contains(exp);
-            break;
-        case FilterSearch::RegisterAndRegular:
-            exp = QRegularExpression(phrase, flag);
-            find = txt.contains(exp);
-            break;
-        case FilterSearch::Regular:
-            exp = QRegularExpression(phrase, flagIns);
-            find = txt.contains(exp);
-            break;
-        default:
-            find = txt.contains(phrase, Qt::CaseInsensitive);
-            break;
-        }
-
-        if (!find) {
-            continue;
-        }
-
-        auto point = indexForSearchInLine(txt, phrase, parameter, direction);
-        if ((point.first == -1 && searchPoint.y() > -1)) {
-            text->deselectText();
-            searchPoint.setY(-1);
-        } else {
-            chatWidget->scrollToLine(l);
-            text->deselectText();
-
-            if (exp.pattern().isEmpty()) {
-                text->selectText(phrase, point);
-            } else {
-                text->selectText(exp, point);
-            }
-
-            searchPoint = QPoint(numLines - i, point.first);
-            isSearch = true;
-
-            break;
-        }
-    }
-
-    return isSearch;
-}
-
-std::pair<int, int> GenericChatForm::indexForSearchInLine(const QString& txt, const QString& phrase, const ParameterSearch& parameter, SearchDirection direction)
-{
-    int index = -1;
-    int size = 0;
-
-    QRegularExpression exp;
-    auto flagIns = QRegularExpression::CaseInsensitiveOption | QRegularExpression::UseUnicodePropertiesOption;
-    auto flag = QRegularExpression::UseUnicodePropertiesOption;
-    if (direction == SearchDirection::Up) {
-        int startIndex = -1;
-        if (searchPoint.y() > -1) {
-            startIndex = searchPoint.y() - 1;
-        }
-
-        switch (parameter.filter) {
-        case FilterSearch::Register:
-            index = txt.lastIndexOf(phrase, startIndex, Qt::CaseSensitive);
-            break;
-        case FilterSearch::WordsOnly:
-            exp = QRegularExpression(SearchExtraFunctions::generateFilterWordsOnly(phrase), flagIns);
-            break;
-        case FilterSearch::RegisterAndWordsOnly:
-            exp = QRegularExpression(SearchExtraFunctions::generateFilterWordsOnly(phrase), flag);
-            break;
-        case FilterSearch::RegisterAndRegular:
-            exp = QRegularExpression(phrase, flag);
-            break;
-        case FilterSearch::Regular:
-            exp = QRegularExpression(phrase, flagIns);
-            break;
-        default:
-            index = txt.lastIndexOf(phrase, startIndex, Qt::CaseInsensitive);
-            break;
-        }
-
-        if (!exp.pattern().isEmpty()) {
-            auto matchIt = exp.globalMatch(txt);
-
-            while (matchIt.hasNext()) {
-                const auto match = matchIt.next();
-
-                int sizeItem = match.capturedLength();
-                int indexItem = match.capturedStart();
-
-                if (startIndex == -1 || indexItem < startIndex) {
-                    index = indexItem;
-                    size = sizeItem;
-                } else {
-                    break;
-                }
-            }
-        } else {
-            size = phrase.size();
-        }
-
-    } else {
-        int startIndex = 0;
-        if (searchPoint.y() > -1) {
-            startIndex = searchPoint.y() + 1;
-        }
-
-        switch (parameter.filter) {
-        case FilterSearch::Register:
-            index = txt.indexOf(phrase, startIndex, Qt::CaseSensitive);
-            break;
-        case FilterSearch::WordsOnly:
-            exp = QRegularExpression(SearchExtraFunctions::generateFilterWordsOnly(phrase), flagIns);
-            break;
-        case FilterSearch::RegisterAndWordsOnly:
-            exp = QRegularExpression(SearchExtraFunctions::generateFilterWordsOnly(phrase), flag);
-            break;
-        case FilterSearch::RegisterAndRegular:
-            exp = QRegularExpression(phrase, flag);
-            break;
-        case FilterSearch::Regular:
-            exp = QRegularExpression(phrase, flagIns);
-            break;
-        default:
-            index = txt.indexOf(phrase, startIndex, Qt::CaseInsensitive);
-            break;
-        }
-
-        if (!exp.pattern().isEmpty()) {
-            const auto match = exp.match(txt, startIndex);
-            if (match.hasMatch()) {
-                size = match.capturedLength(0);
-                index = match.capturedEnd() - size;
-            }
-        } else {
-            size = phrase.size();
-        }
-    }
-
-    return std::make_pair(index, size);
 }
 
 void GenericChatForm::clearChatArea()
@@ -859,7 +666,7 @@ void GenericChatForm::clearChatArea(bool confirm, bool inform)
     if (inform)
         addSystemInfoMessage(tr("Cleared"), ChatMessage::INFO, QDateTime::currentDateTime());
 
-    earliestMessage = QDateTime(); // null
+    messages.clear();
 }
 
 void GenericChatForm::onSelectAllClicked()
@@ -987,15 +794,177 @@ void GenericChatForm::searchFormShow()
     }
 }
 
+void GenericChatForm::onLoadHistory()
+{
+    LoadHistoryDialog dlg(&chatLog);
+    if (dlg.exec()) {
+        QDateTime time = dlg.getFromDate();
+        auto idx = firstItemAfterDate(dlg.getFromDate().date(), chatLog);
+        renderMessages(idx, chatLog.getNextIdx());
+    }
+}
+
+void GenericChatForm::onExportChat()
+{
+    QString path = QFileDialog::getSaveFileName(Q_NULLPTR, tr("Save chat log"));
+    if (path.isEmpty()) {
+        return;
+    }
+
+    QFile file(path);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        return;
+    }
+
+    QString buffer;
+    for (auto i = chatLog.getFirstIdx(); i < chatLog.getNextIdx(); ++i) {
+        const auto& item = chatLog.at(i);
+        if (item.getContentType() != ChatLogItem::ContentType::message) {
+            continue;
+        }
+
+        QString timestamp = item.getTimestamp().time().toString("hh:mm:ss");
+        QString datestamp = item.getTimestamp().date().toString("yyyy-MM-dd");
+        QString author = item.getDisplayName();
+
+        buffer = buffer
+                 % QString{datestamp % '\t' % timestamp % '\t' % author % '\t'
+                           % item.getContentAsMessage().message.content % '\n'};
+    }
+    file.write(buffer.toUtf8());
+    file.close();
+}
+
 void GenericChatForm::onSearchTriggered()
 {
     if (searchForm->isHidden()) {
         searchForm->removeSearchPhrase();
+    }
+    disableSearchText();
+}
 
-        disableSearchText();
+void GenericChatForm::searchInBegin(const QString& phrase, const ParameterSearch& parameter)
+{
+    disableSearchText();
+
+    bool bForwardSearch = false;
+    switch (parameter.period) {
+    case PeriodSearch::WithTheFirst: {
+        bForwardSearch = true;
+        searchPos.logIdx = chatLog.getFirstIdx();
+        searchPos.numMatches = 0;
+        break;
+    }
+    case PeriodSearch::WithTheEnd:
+    case PeriodSearch::None: {
+        bForwardSearch = false;
+        searchPos.logIdx = chatLog.getNextIdx();
+        searchPos.numMatches = 0;
+        break;
+    }
+    case PeriodSearch::AfterDate: {
+        bForwardSearch = true;
+        searchPos.logIdx = firstItemAfterDate(parameter.date, chatLog);
+        searchPos.numMatches = 0;
+        break;
+    }
+    case PeriodSearch::BeforeDate: {
+        bForwardSearch = false;
+        searchPos.logIdx = firstItemAfterDate(parameter.date, chatLog);
+        searchPos.numMatches = 0;
+        break;
+    }
+    }
+
+    if (bForwardSearch) {
+        onSearchDown(phrase, parameter);
     } else {
-        searchPoint = QPoint(1, -1);
-        searchAfterLoadHistory = false;
+        onSearchUp(phrase, parameter);
+    }
+}
+
+void GenericChatForm::onSearchUp(const QString& phrase, const ParameterSearch& parameter)
+{
+    auto result = chatLog.searchBackward(searchPos, phrase, parameter);
+    handleSearchResult(result, SearchDirection::Up);
+}
+
+void GenericChatForm::onSearchDown(const QString& phrase, const ParameterSearch& parameter)
+{
+    auto result = chatLog.searchForward(searchPos, phrase, parameter);
+    handleSearchResult(result, SearchDirection::Down);
+}
+
+void GenericChatForm::handleSearchResult(SearchResult result, SearchDirection direction)
+{
+    if (!result.found) {
+        emit messageNotFoundShow(direction);
+        return;
+    }
+
+    disableSearchText();
+
+    searchPos = result.pos;
+
+    auto const firstRenderedIdx = (messages.empty()) ? chatLog.getNextIdx() : messages.begin()->first;
+
+    renderMessages(searchPos.logIdx, firstRenderedIdx, [this, result] {
+        auto msg = messages.at(searchPos.logIdx);
+        chatWidget->scrollToLine(msg);
+
+        auto text = qobject_cast<Text*>(msg->getContent(1));
+        text->selectText(result.exp, std::make_pair(result.start, result.len));
+    });
+}
+
+void GenericChatForm::renderMessage(ChatLogIdx idx)
+{
+    renderMessages(idx, idx + 1);
+}
+
+void GenericChatForm::renderMessages(ChatLogIdx begin, ChatLogIdx end,
+                                     std::function<void(void)> onCompletion)
+{
+    QList<ChatLine::Ptr> beforeLines;
+    QList<ChatLine::Ptr> afterLines;
+
+    for (auto i = begin; i < end; ++i) {
+        auto chatMessage = getChatMessageForIdx(i, messages);
+        renderItem(chatLog.at(i), needsToHideName(i), colorizeNames, chatMessage);
+
+        if (messages.find(i) == messages.end()) {
+            QList<ChatLine::Ptr>* lines =
+                (messages.empty() || i > messages.rbegin()->first) ? &afterLines : &beforeLines;
+
+            messages.insert({i, chatMessage});
+
+            if (shouldRenderDate(i, chatLog)) {
+                lines->push_back(dateMessageForItem(chatLog.at(i)));
+            }
+            lines->push_back(chatMessage);
+        }
+    }
+
+    for (auto const& line : afterLines) {
+        chatWidget->insertChatlineAtBottom(line);
+    }
+
+    if (!beforeLines.empty()) {
+        // Rendering upwards is expensive and has async behavior for chatWidget.
+        // Once rendering completes we call our completion callback once and
+        // then disconnect the signal
+        if (onCompletion) {
+            auto connection = std::make_shared<QMetaObject::Connection>();
+            *connection = connect(chatWidget, &ChatLog::workerTimeoutFinished,
+                                  [onCompletion, connection, this] {
+                                      onCompletion();
+                                      disconnect(*connection);
+                                  });
+        }
+
+        chatWidget->insertChatlinesOnTop(beforeLines);
+    } else if (onCompletion) {
+        onCompletion();
     }
 }
 
@@ -1012,31 +981,18 @@ void GenericChatForm::updateShowDateInfo(const ChatLine::Ptr& line)
     }
 }
 
-void GenericChatForm::onContinueSearch()
-{
-    const QString phrase = searchForm->getSearchPhrase();
-    const ParameterSearch parameter = searchForm->getParameterSearch();
-    if (!phrase.isEmpty() && searchAfterLoadHistory) {
-        if (parameter.period == PeriodSearch::WithTheFirst || parameter.period == PeriodSearch::AfterDate) {
-            searchAfterLoadHistory = false;
-            onSearchDown(phrase, parameter);
-        } else {
-            onSearchUp(phrase, parameter);
-        }
-    }
-}
-
 void GenericChatForm::retranslateUi()
 {
     sendButton->setToolTip(tr("Send message"));
     emoteButton->setToolTip(tr("Smileys"));
     fileButton->setToolTip(tr("Send file(s)"));
     screenshotButton->setToolTip(tr("Send a screenshot"));
-    saveChatAction->setText(tr("Save chat log"));
     clearAction->setText(tr("Clear displayed messages"));
     quoteAction->setText(tr("Quote selected text"));
     copyLinkAction->setText(tr("Copy link address"));
     searchAction->setText(tr("Search in text"));
+    loadHistoryAction->setText(tr("Load chat history..."));
+    exportChatAction->setText(tr("Export to file"));
 }
 
 void GenericChatForm::showNetcam()

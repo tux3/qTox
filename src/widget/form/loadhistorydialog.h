@@ -27,13 +27,14 @@
 namespace Ui {
 class LoadHistoryDialog;
 }
+class IChatLog;
 
 class LoadHistoryDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit LoadHistoryDialog(const ToxPk& friendPk, QWidget* parent = nullptr);
+    explicit LoadHistoryDialog(const IChatLog* chatLog, QWidget* parent = nullptr);
     explicit LoadHistoryDialog(QWidget* parent = nullptr);
     ~LoadHistoryDialog();
 
@@ -46,7 +47,7 @@ public slots:
 
 private:
     Ui::LoadHistoryDialog* ui;
-    const ToxPk friendPk;
+    const IChatLog* chatLog;
 };
 
 #endif // LOADHISTORYDIALOG_H

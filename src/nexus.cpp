@@ -208,6 +208,7 @@ void Nexus::showMainGUI()
     connect(core, &Core::friendStatusMessageChanged, widget, &Widget::onFriendStatusMessageChanged);
     connect(core, &Core::friendRequestReceived, widget, &Widget::onFriendRequestReceived);
     connect(core, &Core::friendMessageReceived, widget, &Widget::onFriendMessageReceived);
+    connect(core, &Core::receiptRecieved, widget, &Widget::onReceiptReceived);
     connect(core, &Core::groupInviteReceived, widget, &Widget::onGroupInviteReceived);
     connect(core, &Core::groupMessageReceived, widget, &Widget::onGroupMessageReceived);
     connect(core, &Core::groupPeerlistChanged, widget, &Widget::onGroupPeerlistChanged);

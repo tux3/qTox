@@ -853,8 +853,6 @@ QString Profile::setPassword(const QString& newPassword)
                    "password.");
     }
 
-    Nexus::getDesktopGUI()->reloadHistory();
-
     QByteArray avatar = loadAvatarData(core->getSelfId().getPublicKey());
     saveAvatar(core->getSelfId().getPublicKey(), avatar);
 
