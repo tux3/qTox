@@ -339,6 +339,8 @@ set(${PROJECT_NAME}_SOURCES
   src/model/contact.h
   src/model/chatlogitem.cpp
   src/model/chatlogitem.h
+  src/model/exiftransform.h
+  src/model/exiftransform.cpp
   src/model/friend.cpp
   src/model/friend.h
   src/model/message.h

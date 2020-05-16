@@ -26,8 +26,7 @@
 #include "src/widget/gui.h"
 #include "src/widget/style.h"
 #include "src/widget/widget.h"
-
-#include <libexif/exif-loader.h>
+#include "src/model/exiftransform.h"
 
 #include <QBuffer>
 #include <QDebug>
@@ -523,13 +522,11 @@ void FileTransferWidget::showPreview(const QString& filename)
         if (!imageFile.open(QIODevice::ReadOnly)) {
             return;
         }
+
         const QByteArray imageFileData = imageFile.readAll();
         QImage image = QImage::fromData(imageFileData);
-        const int exifOrientation =
-            getExifOrientation(imageFileData.constData(), imageFileData.size());
-        if (exifOrientation) {
-            applyTransformation(exifOrientation, image);
-        }
+        auto orientation = ExifTransform::getExifOrientation(imageFileData);
+        image = ExifTransform::applyExifTransformation(image, orientation);
 
         const QPixmap iconPixmap = scaleCropIntoSquare(QPixmap::fromImage(image), size);
 
@@ -597,59 +594,6 @@ QPixmap FileTransferWidget::scaleCropIntoSquare(const QPixmap& source, const int
 
     // Picture was rectangle in the first place, no cropping
     return result;
-}
-
-int FileTransferWidget::getExifOrientation(const char* data, const int size)
-{
-    ExifData* exifData = exif_data_new_from_data(reinterpret_cast<const unsigned char*>(data), size);
-
-    if (!exifData) {
-        return 0;
-    }
-
-    int orientation = 0;
-    const ExifByteOrder byteOrder = exif_data_get_byte_order(exifData);
-    const ExifEntry* const exifEntry = exif_data_get_entry(exifData, EXIF_TAG_ORIENTATION);
-    if (exifEntry) {
-        orientation = exif_get_short(exifEntry->data, byteOrder);
-    }
-    exif_data_free(exifData);
-    return orientation;
-}
-
-void FileTransferWidget::applyTransformation(const int orientation, QImage& image)
-{
-    QTransform exifTransform;
-    switch (static_cast<ExifOrientation>(orientation)) {
-    case ExifOrientation::TopLeft:
-        break;
-    case ExifOrientation::TopRight:
-        image = image.mirrored(1, 0);
-        break;
-    case ExifOrientation::BottomRight:
-        exifTransform.rotate(180);
-        break;
-    case ExifOrientation::BottomLeft:
-        image = image.mirrored(0, 1);
-        break;
-    case ExifOrientation::LeftTop:
-        exifTransform.rotate(90);
-        image = image.mirrored(0, 1);
-        break;
-    case ExifOrientation::RightTop:
-        exifTransform.rotate(-90);
-        break;
-    case ExifOrientation::RightBottom:
-        exifTransform.rotate(-90);
-        image = image.mirrored(0, 1);
-        break;
-    case ExifOrientation::LeftBottom:
-        exifTransform.rotate(90);
-        break;
-    default:
-        qWarning() << "Invalid exif orientation passed to applyTransformation!";
-    }
-    image = image.transformed(exifTransform);
 }
 
 void FileTransferWidget::updateWidget(ToxFile const& file)

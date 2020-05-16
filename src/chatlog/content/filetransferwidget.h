@@ -89,22 +89,4 @@ private:
     bool active;
     ToxFile::FileStatus lastStatus = ToxFile::INITIALIZING;
 
-    enum class ExifOrientation
-    {
-        /* do not change values, this is exif spec
-         *
-         * name corresponds to where the 0 row and 0 column is in form row-column
-         * i.e. entry 5 here means that the 0'th row corresponds to the left side of the scene and
-         * the 0'th column corresponds to the top of the captured scene. This means that the image
-         * needs to be mirrored and rotated to be displayed.
-         */
-        TopLeft = 1,
-        TopRight = 2,
-        BottomRight = 3,
-        BottomLeft = 4,
-        LeftTop = 5,
-        RightTop = 6,
-        RightBottom = 7,
-        LeftBottom = 8
-    };
 };
