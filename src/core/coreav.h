@@ -23,6 +23,7 @@
 #include "src/core/toxcall.h"
 
 #include <QObject>
+#include <QMetaType>
 #include <QMutex>
 #include <QReadWriteLock>
 #include <atomic>
@@ -43,14 +44,17 @@ class VideoFrame;
 class Core;
 struct vpx_image;
 
+Q_DECLARE_METATYPE(std::shared_ptr<ToxFriendCall>)
+
 class CoreAV : public QObject
 {
     Q_OBJECT
 
 public:
     using CoreAVPtr = std::unique_ptr<CoreAV>;
+    // must be shared for signal avInvites signal, even though ownership is not shared
     using ToxFriendCallPtr = std::shared_ptr<ToxFriendCall>;
-    using ToxGroupCallPtr = std::shared_ptr<ToxGroupCall>;
+    using ToxGroupCallPtr = std::unique_ptr<ToxGroupCall>;
 
     static CoreAVPtr makeCoreAV(Tox* core, QMutex& toxCoreLock,
                                 IAudioSettings& audioSettings, IGroupSettings& groupSettings);
@@ -78,12 +82,12 @@ public:
 
 public slots:
     ToxFriendCallPtr startCall(uint32_t friendNum, bool video);
-    ToxFriendCallPtr answerCall(uint32_t friendNum, bool video);
+    bool answerCall(uint32_t friendNum, bool video);
     bool cancelCall(uint32_t friendNum);
     void start();
 
 signals:
-    void avInvite(uint32_t friendId, bool video);
+    void avInvite(uint32_t friendId, bool video, ToxFriendCallPtr call);
     void avStart(uint32_t friendId, bool video);
     void avEnd(uint32_t friendId, bool error = false);
 
@@ -129,13 +133,13 @@ private:
      * @brief Maps friend IDs to ToxFriendCall.
      * @note Need to use STL container here, because Qt containers need a copy constructor.
      */
-    std::map<uint32_t, ToxFriendCallPtr> calls;
+    std::map<uint32_t, ToxFriendCall*> calls;
 
     /**
      * @brief Maps group IDs to ToxGroupCalls.
      * @note Need to use STL container here, because Qt containers need a copy constructor.
      */
-    std::map<int, ToxGroupCallPtr> groupCalls;
+    std::map<int, ToxGroupCall*> groupCalls;
 
     // protect 'calls' and 'groupCalls'
     mutable QReadWriteLock callsLock{QReadWriteLock::Recursive};

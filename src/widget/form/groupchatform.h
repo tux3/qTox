@@ -79,5 +79,5 @@ private:
     FlowLayout* namesListLayout;
     QLabel* nusersLabel;
     TabCompleter* tabber;
-    std::shared_ptr<ToxGroupCall> call;
+    std::unique_ptr<ToxGroupCall> call;
 };

@@ -68,7 +68,7 @@ signals:
     void updateFriendActivity(Friend& frnd);
 
 public slots:
-    void onAvInvite(uint32_t friendId, bool video);
+    void onAvInvite(uint32_t friendId, bool video, std::shared_ptr<ToxFriendCall> call);
     void onAvStart(uint32_t friendId, bool video);
     void onAvEnd(uint32_t friendId, bool error);
     void onAvatarChanged(const ToxPk& friendPk, const QPixmap& pic);
