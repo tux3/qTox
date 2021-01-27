@@ -76,8 +76,8 @@ public:
     void setName(const QString& newName);
     virtual void show(ContentLayout* contentLayout);
 
-    void addSystemInfoMessage(const QString& message, ChatMessage::SystemMessageType type,
-                              const QDateTime& datetime);
+    void addSystemInfoMessage(const QDateTime& datetime, SystemMessageType messageType,
+                              SystemMessage::Args messageArgs);
     static QString resolveToxPk(const ToxPk& pk);
     QDateTime getLatestTime() const;
 
