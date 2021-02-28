@@ -190,24 +190,22 @@ public:
     void markAsDelivered(RowId messageId);
     void markAsBroken(RowId messageId, BrokenMessageReason reason);
 
-protected:
-    QVector<RawDatabase::Query>
-    generateNewMessageQueries(const ToxPk& friendPk, const QString& message,
-                              const ToxPk& sender, const QDateTime& time, bool isDelivered,
-                              ExtensionSet extensionSet, QString dispName, std::function<void(RowId)> insertIdCallback = {});
-
 signals:
-    void fileInsertionReady(FileDbInsertionData data);
     void fileInserted(RowId dbId, QString fileId);
 
 private slots:
-    void onFileInsertionReady(FileDbInsertionData data);
     void onFileInserted(RowId dbId, QString fileId);
 
 private:
+    QVector<RawDatabase::Query>
+    generateNewFileTransferQueries(const ToxPk& friendPk, const ToxPk& sender, const QDateTime& time,
+                                   const QString& dispName, const FileDbInsertionData& insertionData);
     bool historyAccessBlocked();
     static RawDatabase::Query generateFileFinished(RowId fileId, bool success,
                                                    const QString& filePath, const QByteArray& fileHash);
+
+    int64_t getPeerId(ToxPk const& pk);
+
     std::shared_ptr<RawDatabase> db;
 
 
