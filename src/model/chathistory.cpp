@@ -214,7 +214,10 @@ std::vector<IChatLog::DateChatLogIdxPair> ChatHistory::getDateIdxs(const QDate& 
 
 void ChatHistory::addSystemMessage(const SystemMessage& message)
 {
-    // FIXME: #6221 Insert into history
+    if (canUseHistory()) {
+        history->addNewSystemMessage(f.getPublicKey(), QDateTime::currentDateTime(), message);
+    }
+
     sessionChatLog.addSystemMessage(message);
 }
 
@@ -408,6 +411,11 @@ void ChatHistory::loadHistoryIntoSessionChatLog(ChatLogIdx start) const
                                                             chatLogMessage);
                     break;
             }
+            break;
+        }
+        case HistMessageContentType::system: {
+            const auto& systemMessage = message.content.asSystemMessage();
+            sessionChatLog.insertSystemMessageAtIdx(currentIdx, systemMessage);
             break;
         }
         }

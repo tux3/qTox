@@ -65,6 +65,7 @@ public slots:
     void onFileTransferRemotePausedUnpaused(const ToxPk& sender, const ToxFile& file, bool paused);
     void onFileTransferBrokenUnbroken(const ToxPk& sender, const ToxFile& file, bool broken);
 
+
 private:
     QString resolveSenderNameFromSender(const ToxPk &sender);
 

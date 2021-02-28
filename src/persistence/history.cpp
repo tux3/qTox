@@ -550,7 +550,27 @@ generateNewTextMessageQueries(const ToxPk& friendPk, const QString& message, con
     return queries;
 }
 
+QVector<RawDatabase::Query> generateNewSystemMessageQueries(const ToxPk& friendPk,
+                                                            const QDateTime& time,
+                                                            const SystemMessage& systemMessage)
+{
+    QVector<RawDatabase::Query> queries;
 
+    queries += generateEnsurePkInPeers(friendPk);
+    queries += generateHistoryTableInsertion('S', time, friendPk);
+
+    QVector<QByteArray> blobs;
+    std::transform(systemMessage.args.begin(), systemMessage.args.end(), std::back_inserter(blobs),
+                   [](const QString& s) { return s.toUtf8(); });
+
+    queries += RawDatabase::Query(QString("INSERT INTO system_messages (id, message_type, "
+                                          "system_message_type, arg1, arg2, arg3, arg4)"
+                                          "VALUES (last_insert_rowid(), 'S', %1, ?, ?, ?, ?)")
+                                      .arg(static_cast<int>(systemMessage.messageType)),
+                                  blobs);
+
+    return queries;
+}
 } // namespace
 
 /**
@@ -756,6 +776,7 @@ History::generateNewFileTransferQueries(const ToxPk& friendPk, const ToxPk& send
 
     return queries;
 }
+
 RawDatabase::Query History::generateFileFinished(RowId id, bool success, const QString& filePath,
                                                  const QByteArray& fileHash)
 {
@@ -814,6 +835,17 @@ void History::addNewFileMessage(const ToxPk& friendPk, const QString& fileId,
     insertionData.direction = direction;
 
     auto queries = generateNewFileTransferQueries(friendPk, sender, time, dispName, insertionData);
+
+    db->execLater(queries);
+}
+
+void History::addNewSystemMessage(const ToxPk& friendPk, const QDateTime& time,
+                                  const SystemMessage& systemMessage)
+{
+    if (historyAccessBlocked())
+        return;
+
+    const auto queries = generateNewSystemMessageQueries(friendPk, time, systemMessage);
 
     db->execLater(queries);
 }
@@ -983,8 +1015,18 @@ QList<History::HistMessage> History::getMessagesForFriend(const ToxPk& friendPk,
         }
         default:
         case 'S':
-            // System messages not yet supported
-            assert(false);
+            it = std::next(row.begin(), systemOffset);
+            assert(!it->isNull());
+            SystemMessage systemMessage;
+            systemMessage.messageType = static_cast<SystemMessageType>((*it++).toLongLong());
+
+            auto argEnd = std::next(it, systemMessage.args.size());
+            std::transform(it, argEnd, systemMessage.args.begin(), [](const QVariant& arg) {
+                return QString::fromUtf8(arg.toByteArray().replace('\0', ""));
+            });
+            it = argEnd;
+
+            messages += HistMessage(id, timestamp, friendPk.toString(), systemMessage);
             break;
         }
     };

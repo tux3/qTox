@@ -28,10 +28,11 @@
 #include <cstdint>
 #include <tox/toxencryptsave.h>
 
+#include "src/core/extension.h"
 #include "src/core/toxfile.h"
 #include "src/core/toxpk.h"
-#include "src/core/extension.h"
 #include "src/model/brokenmessagereason.h"
+#include "src/model/systemmessage.h"
 #include "src/persistence/db/rawdatabase.h"
 #include "src/widget/searchtypes.h"
 
@@ -41,7 +42,8 @@ class HistoryKeeper;
 enum class HistMessageContentType
 {
     message,
-    file
+    file,
+    system,
 };
 
 class HistMessageContent
@@ -55,6 +57,11 @@ public:
     HistMessageContent(ToxFile file)
         : data(std::make_shared<ToxFile>(std::move(file)))
         , type(HistMessageContentType::file)
+    {}
+
+    HistMessageContent(SystemMessage systemMessage)
+        : data(std::make_shared<SystemMessage>(std::move(systemMessage)))
+        , type(HistMessageContentType::system)
     {}
 
     HistMessageContentType getType() const
@@ -74,6 +81,12 @@ public:
         return *static_cast<ToxFile*>(data.get());
     }
 
+    SystemMessage& asSystemMessage()
+    {
+        assert(type == HistMessageContentType::system);
+        return *static_cast<SystemMessage*>(data.get());
+    }
+
     const QString& asMessage() const
     {
         assert(type == HistMessageContentType::message);
@@ -84,6 +97,12 @@ public:
     {
         assert(type == HistMessageContentType::file);
         return *static_cast<ToxFile*>(data.get());
+    }
+
+    const SystemMessage& asSystemMessage() const
+    {
+        assert(type == HistMessageContentType::system);
+        return *static_cast<SystemMessage*>(data.get());
     }
 
 private:
@@ -142,6 +161,13 @@ public:
             , content(std::move(file))
         {}
 
+        HistMessage(RowId id, QDateTime timestamp, QString chat, SystemMessage systemMessage)
+            : chat{chat}
+            , timestamp{timestamp}
+            , id{id}
+            , state(MessageState::complete)
+            , content(std::move(systemMessage))
+        {}
 
         QString chat;
         QString sender;
@@ -176,6 +202,9 @@ public:
     void addNewFileMessage(const ToxPk& friendPk, const QString& fileId,
                            const QString& fileName, const QString& filePath, int64_t size,
                            const ToxPk& sender, const QDateTime& time, QString const& dispName);
+
+    void addNewSystemMessage(const ToxPk& friendPk, const QDateTime& time,
+                             const SystemMessage& systemMessage);
 
     void setFileFinished(const QString& fileId, bool success, const QString& filePath, const QByteArray& fileHash);
     size_t getNumMessagesForFriend(const ToxPk& friendPk);
