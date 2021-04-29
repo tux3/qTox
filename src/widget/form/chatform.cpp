@@ -289,9 +289,11 @@ void ChatForm::onAvInvite(uint32_t friendId, bool video)
     }
 
     QString displayedName = f->getDisplayedName();
-    insertChatMessage(ChatMessage::createChatInfoMessage(tr("%1 calling").arg(displayedName),
-                                                         ChatMessage::INFO,
-                                                         QDateTime::currentDateTime()));
+
+    SystemMessage systemMessage;
+    systemMessage.messageType = SystemMessageType::incomingCall;
+    systemMessage.args = {displayedName};
+    chatLog.addSystemMessage(systemMessage);
 
     auto testedFlag = video ? Settings::AutoAcceptCall::Video : Settings::AutoAcceptCall::Audio;
     // AutoAcceptCall is set for this friend
@@ -349,8 +351,8 @@ void ChatForm::onAvEnd(uint32_t friendId, bool error)
 void ChatForm::showOutgoingCall(bool video)
 {
     headWidget->showOutgoingCall(video);
-    addSystemInfoMessage(tr("Calling %1").arg(f->getDisplayedName()), ChatMessage::INFO,
-                         QDateTime::currentDateTime());
+    addSystemInfoMessage(QDateTime::currentDateTime(), SystemMessageType::outgoingCall,
+                         {f->getDisplayedName()});
     emit outgoingNotification();
     emit updateFriendActivity(*f);
 }
@@ -444,10 +446,8 @@ void ChatForm::onFriendStatusChanged(const ToxPk& friendPk, Status::Status statu
 
     if (Settings::getInstance().getStatusChangeNotificationEnabled()) {
         QString fStatus = Status::getTitle(status);
-        addSystemInfoMessage(tr("%1 is now %2", "e.g. \"Dubslow is now online\"")
-                                 .arg(f->getDisplayedName())
-                                 .arg(fStatus),
-                             ChatMessage::INFO, QDateTime::currentDateTime());
+        addSystemInfoMessage(QDateTime::currentDateTime(), SystemMessageType::peerStateChange,
+                             {f->getDisplayedName(), fStatus});
     }
 }
 
@@ -652,10 +652,10 @@ void ChatForm::stopCounter(bool error)
     }
     QString dhms = secondsToDHMS(timeElapsed.elapsed() / 1000);
     QString name = f->getDisplayedName();
-    QString mess = error ? tr("Call with %1 ended unexpectedly. %2") : tr("Call with %1 ended. %2");
+    auto messageType = error ? SystemMessageType::unexpectedCallEnd : SystemMessageType::callEnd;
     // TODO: add notification once notifications are implemented
 
-    addSystemInfoMessage(mess.arg(name, dhms), ChatMessage::INFO, QDateTime::currentDateTime());
+    addSystemInfoMessage(QDateTime::currentDateTime(), messageType, {name, dhms});
     callDurationTimer->stop();
     callDuration->setText("");
     callDuration->hide();

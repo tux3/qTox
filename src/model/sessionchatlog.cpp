@@ -319,6 +319,15 @@ std::vector<IChatLog::DateChatLogIdxPair> SessionChatLog::getDateIdxs(const QDat
     return ret;
 }
 
+void SessionChatLog::addSystemMessage(const SystemMessage& message)
+{
+    auto messageIdx = nextIdx++;
+
+    items.emplace(messageIdx, ChatLogItem(message));
+
+    emit this->itemUpdated(messageIdx);
+}
+
 void SessionChatLog::insertCompleteMessageAtIdx(ChatLogIdx idx, const ToxPk& sender, QString senderName,
                                                 const ChatLogMessage& message)
 {
@@ -354,6 +363,13 @@ void SessionChatLog::insertBrokenMessageAtIdx(ChatLogIdx idx, const ToxPk& sende
 void SessionChatLog::insertFileAtIdx(ChatLogIdx idx, const ToxPk& sender, QString senderName, const ChatLogFile& file)
 {
     auto item = ChatLogItem(sender, senderName, file);
+
+    items.emplace(idx, std::move(item));
+}
+
+void SessionChatLog::insertSystemMessageAtIdx(ChatLogIdx idx, SystemMessage message)
+{
+    auto item = ChatLogItem(std::move(message));
 
     items.emplace(idx, std::move(item));
 }

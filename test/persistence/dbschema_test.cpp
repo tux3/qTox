@@ -52,24 +52,19 @@ private slots:
     void test3to4();
     void test4to5();
     void test5to6();
-    void cleanupTestCase();
+    void test6to7();
+    void cleanupTestCase() const;
+
 private:
     bool initSucess{false};
     void createSchemaAtVersion(std::shared_ptr<RawDatabase>, const std::vector<SqliteMasterEntry>& schema);
     void verifyDb(std::shared_ptr<RawDatabase> db, const std::vector<SqliteMasterEntry>& expectedSql);
 };
 
-const QString testFileList[] = {
-    "testCreation.db",
-    "testIsNewDbTrue.db",
-    "testIsNewDbFalse.db",
-    "test0to1.db",
-    "test1to2.db",
-    "test2to3.db",
-    "test3to4.db",
-    "test4to5.db",
-    "test5to6.db"
-};
+const QString testFileList[] = {"testCreation.db", "testIsNewDbTrue.db", "testIsNewDbFalse.db",
+                                "test0to1.db",     "test1to2.db",        "test2to3.db",
+                                "test3to4.db",     "test4to5.db",        "test5to6.db",
+                                "test6to7.db"};
 
 // db schemas can be select with "SELECT name, sql FROM sqlite_master;" on the database.
 
@@ -135,6 +130,37 @@ const std::vector<SqliteMasterEntry> schema6 {
     {"chat_id_idx", "CREATE INDEX chat_id_idx on history (chat_id)"}
 };
 
+const std::vector<SqliteMasterEntry> schema7{
+    {"aliases", "CREATE TABLE aliases (id INTEGER PRIMARY KEY, owner INTEGER, display_name BLOB "
+                "NOT NULL, UNIQUE(owner, display_name), FOREIGN KEY (owner) REFERENCES peers(id))"},
+    {"faux_offline_pending",
+     "CREATE TABLE faux_offline_pending (id INTEGER PRIMARY KEY, required_extensions INTEGER NOT "
+     "NULL DEFAULT 0, FOREIGN KEY (id) REFERENCES history(id))"},
+    {"file_transfers",
+     "CREATE TABLE file_transfers (id INTEGER PRIMARY KEY, message_type CHAR(1) NOT NULL CHECK "
+     "(message_type = 'F'), sender_alias INTEGER NOT NULL, file_restart_id BLOB NOT NULL, "
+     "file_name BLOB NOT NULL, file_path BLOB NOT NULL, file_hash BLOB NOT NULL, file_size INTEGER "
+     "NOT NULL, direction INTEGER NOT NULL, file_state INTEGER NOT NULL, FOREIGN KEY (id, "
+     "message_type) REFERENCES history(id, message_type), FOREIGN KEY (sender_alias) REFERENCES "
+     "aliases(id))"},
+    {"history",
+     "CREATE TABLE history (id INTEGER PRIMARY KEY, message_type CHAR(1) NOT NULL DEFAULT 'T' "
+     "CHECK (message_type in ('T','F','S')), timestamp INTEGER NOT NULL, chat_id INTEGER NOT NULL, "
+     "UNIQUE (id, message_type), FOREIGN KEY (chat_id) REFERENCES peers(id))"},
+    {"text_messages", "CREATE TABLE text_messages (id INTEGER PRIMARY KEY, message_type CHAR(1) "
+                      "NOT NULL CHECK (message_type = 'T'), sender_alias INTEGER NOT NULL, message "
+                      "BLOB NOT NULL, FOREIGN KEY (id, message_type) REFERENCES history(id, "
+                      "message_type), FOREIGN KEY (sender_alias) REFERENCES aliases(id))"},
+    {"peers", "CREATE TABLE peers (id INTEGER PRIMARY KEY, public_key TEXT NOT NULL UNIQUE)"},
+    {"broken_messages", "CREATE TABLE broken_messages (id INTEGER PRIMARY KEY, reason INTEGER NOT "
+                        "NULL DEFAULT 0, FOREIGN KEY (id) REFERENCES history(id))"},
+    {"system_messages",
+     "CREATE TABLE system_messages (id INTEGER PRIMARY KEY, message_type CHAR(1) NOT NULL CHECK "
+     "(message_type = 'S'), system_message_type INTEGER NOT NULL, arg1 BLOB, arg2 BLOB, arg3 BLOB, arg4 BLOB, "
+     "FOREIGN KEY (id, message_type) REFERENCES history(id, message_type))"},
+    {"chat_id_idx", "CREATE INDEX chat_id_idx on history (chat_id)"}};
+
+
 void TestDbSchema::initTestCase()
 {
     for (const auto& path : testFileList) {
@@ -143,7 +169,7 @@ void TestDbSchema::initTestCase()
     initSucess = true;
 }
 
-void TestDbSchema::cleanupTestCase()
+void TestDbSchema::cleanupTestCase() const
 {
     if (!initSucess) {
         qWarning() << "init failed, skipping cleanup to avoid loss of data";
@@ -189,7 +215,7 @@ void TestDbSchema::testCreation()
     QVector<RawDatabase::Query> queries;
     auto db = std::shared_ptr<RawDatabase>{new RawDatabase{"testCreation.db", {}, {}}};
     QVERIFY(createCurrentSchema(*db));
-    verifyDb(db, schema6);
+    verifyDb(db, schema7);
 }
 
 void TestDbSchema::testIsNewDb()
@@ -393,6 +419,17 @@ void TestDbSchema::test5to6()
     createSchemaAtVersion(db, schema5);
     QVERIFY(dbSchema5to6(*db));
     verifyDb(db, schema6);
+}
+
+void TestDbSchema::test6to7()
+{
+    auto db = std::shared_ptr<RawDatabase>{new RawDatabase{"test6to7.db", {}, {}}};
+    // foreign_keys are enabled by History constructor and required for this upgrade to work on older sqlite versions
+    db->execNow(
+        "PRAGMA foreign_keys = ON;");
+    createSchemaAtVersion(db, schema6);
+    QVERIFY(dbSchema6to7(*db));
+    verifyDb(db, schema7);
 }
 
 QTEST_GUILESS_MAIN(TestDbSchema)

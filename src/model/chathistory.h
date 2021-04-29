@@ -42,11 +42,13 @@ public:
     ChatLogIdx getFirstIdx() const override;
     ChatLogIdx getNextIdx() const override;
     std::vector<DateChatLogIdxPair> getDateIdxs(const QDate& startDate, size_t maxDates) const override;
+    void addSystemMessage(const SystemMessage& message) override;
 
 public slots:
     void onFileUpdated(const ToxPk& sender, const ToxFile& file);
     void onFileTransferRemotePausedUnpaused(const ToxPk& sender, const ToxFile& file, bool paused);
     void onFileTransferBrokenUnbroken(const ToxPk& sender, const ToxFile& file, bool broken);
+
 
 private slots:
     void onMessageReceived(const ToxPk& sender, const Message& message);

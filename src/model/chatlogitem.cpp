@@ -50,6 +50,11 @@ ChatLogItem::ChatLogItem(ToxPk sender_, const QString& displayName, ChatLogMessa
                              ChatLogItemDeleter<ChatLogMessage>::doDelete))
 {}
 
+ChatLogItem::ChatLogItem(SystemMessage systemMessage)
+    : contentType(ContentType::systemMessage)
+    , content(new SystemMessage(std::move(systemMessage)), ChatLogItemDeleter<SystemMessage>::doDelete)
+{}
+
 ChatLogItem::ChatLogItem(ToxPk sender_, const QString& displayName_, ContentType contentType_, ContentPtr content_)
     : sender(std::move(sender_))
     , displayName(displayName_)
@@ -91,6 +96,19 @@ const ChatLogMessage& ChatLogItem::getContentAsMessage() const
     return *static_cast<ChatLogMessage*>(content.get());
 }
 
+SystemMessage& ChatLogItem::getContentAsSystemMessage()
+{
+    assert(contentType == ContentType::systemMessage);
+    return *static_cast<SystemMessage*>(content.get());
+}
+
+const SystemMessage& ChatLogItem::getContentAsSystemMessage() const
+{
+    assert(contentType == ContentType::systemMessage);
+    return *static_cast<SystemMessage*>(content.get());
+}
+
+
 QDateTime ChatLogItem::getTimestamp() const
 {
     switch (contentType) {
@@ -101,6 +119,9 @@ QDateTime ChatLogItem::getTimestamp() const
     case ChatLogItem::ContentType::fileTransfer: {
         const auto& file = getContentAsFile();
         return file.timestamp;
+    }
+    case ChatLogItem::ContentType::systemMessage: {
+        return QDateTime::currentDateTime();
     }
     }
 

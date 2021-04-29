@@ -212,6 +212,16 @@ std::vector<IChatLog::DateChatLogIdxPair> ChatHistory::getDateIdxs(const QDate& 
     }
 }
 
+void ChatHistory::addSystemMessage(const SystemMessage& message)
+{
+    if (canUseHistory()) {
+        history->addNewSystemMessage(f.getPublicKey(), QDateTime::currentDateTime(), message);
+    }
+
+    sessionChatLog.addSystemMessage(message);
+}
+
+
 void ChatHistory::onFileUpdated(const ToxPk& sender, const ToxFile& file)
 {
     if (canUseHistory()) {
@@ -401,6 +411,11 @@ void ChatHistory::loadHistoryIntoSessionChatLog(ChatLogIdx start) const
                                                             chatLogMessage);
                     break;
             }
+            break;
+        }
+        case HistMessageContentType::system: {
+            const auto& systemMessage = message.content.asSystemMessage();
+            sessionChatLog.insertSystemMessageAtIdx(currentIdx, systemMessage);
             break;
         }
         }

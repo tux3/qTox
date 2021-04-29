@@ -148,9 +148,8 @@ void GroupChatForm::onTitleChanged(const QString& author, const QString& title)
         return;
     }
 
-    const QString message = tr("%1 has set the title to %2").arg(author, title);
     const QDateTime curTime = QDateTime::currentDateTime();
-    addSystemInfoMessage(message, ChatMessage::INFO, curTime);
+    addSystemInfoMessage(curTime, SystemMessageType::titleChanged, {author, title});
 }
 
 void GroupChatForm::onScreenshotClicked()
@@ -232,19 +231,20 @@ void GroupChatForm::updateUserNames()
 
 void GroupChatForm::onUserJoined(const ToxPk& user, const QString& name)
 {
-    addSystemInfoMessage(tr("%1 has joined the group").arg(name), ChatMessage::INFO, QDateTime::currentDateTime());
+    addSystemInfoMessage(QDateTime::currentDateTime(), SystemMessageType::userJoinedGroup, {name});
     updateUserNames();
 }
 
 void GroupChatForm::onUserLeft(const ToxPk& user, const QString& name)
 {
-    addSystemInfoMessage(tr("%1 has left the group").arg(name), ChatMessage::INFO, QDateTime::currentDateTime());
+    addSystemInfoMessage(QDateTime::currentDateTime(), SystemMessageType::userLeftGroup, {name});
     updateUserNames();
 }
 
 void GroupChatForm::onPeerNameChanged(const ToxPk& peer, const QString& oldName, const QString& newName)
 {
-    addSystemInfoMessage(tr("%1 is now known as %2").arg(oldName, newName), ChatMessage::INFO, QDateTime::currentDateTime());
+    addSystemInfoMessage(QDateTime::currentDateTime(), SystemMessageType::peerNameChanged,
+                         {oldName, newName});
     updateUserNames();
 }
 
