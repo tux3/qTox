@@ -21,6 +21,8 @@
 
 #include "genericchatform.h"
 #include "src/core/toxpk.h"
+#include "src/core/toxcall.h"
+#include "src/core/toxpk.h"
 #include <QMap>
 
 namespace Ui {
@@ -77,5 +79,5 @@ private:
     FlowLayout* namesListLayout;
     QLabel* nusersLabel;
     TabCompleter* tabber;
-    bool inCall;
+    std::unique_ptr<ToxGroupCall> call;
 };

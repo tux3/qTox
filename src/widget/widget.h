@@ -238,7 +238,6 @@ private slots:
     void outgoingNotification();
     void onCallEnd();
     void incomingNotification(uint32_t friendId);
-    void onRejectCall(uint32_t friendId);
     void onStopNotification();
     void dispatchFile(ToxFile file);
     void dispatchFileWithBool(ToxFile file, bool);

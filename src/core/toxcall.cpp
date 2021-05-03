@@ -49,7 +49,7 @@
  */
 
 ToxCall::ToxCall(bool VideoEnabled, CoreAV& av, IAudioControl& audio)
-    : av{&av}
+    : av{av}
     , audio(audio)
     , videoEnabled{VideoEnabled}
     , audioSource(audio.makeSource())
@@ -125,7 +125,7 @@ ToxFriendCall::ToxFriendCall(uint32_t FriendNum, bool VideoEnabled, CoreAV& av, 
 {
     connect(audioSource.get(), &IAudioSource::frameAvailable, this,
                          [this](const int16_t* pcm, size_t samples, uint8_t chans, uint32_t rate) {
-                             this->av->sendCallAudio(this->friendId, pcm, samples, chans, rate);
+                             this->av.sendCallAudio(this->friendId, pcm, samples, chans, rate);
                          });
 
     connect(audioSource.get(), &IAudioSource::invalidated, this, &ToxFriendCall::onAudioSourceInvalidated);
@@ -155,6 +155,7 @@ ToxFriendCall::ToxFriendCall(uint32_t FriendNum, bool VideoEnabled, CoreAV& av, 
 
 ToxFriendCall::~ToxFriendCall()
 {
+    av.cancelCall(friendId);
     QObject::disconnect(audioSinkInvalid);
 }
 
@@ -163,7 +164,7 @@ void ToxFriendCall::onAudioSourceInvalidated()
     auto newSrc = audio.makeSource();
     connect(newSrc.get(), &IAudioSource::frameAvailable, this,
                          [this](const int16_t* pcm, size_t samples, uint8_t chans, uint32_t rate) {
-                             this->av->sendCallAudio(this->friendId, pcm, samples, chans, rate);
+                             this->av.sendCallAudio(this->friendId, pcm, samples, chans, rate);
                          });
     audioSource = std::move(newSrc);
 
@@ -210,7 +211,7 @@ ToxGroupCall::ToxGroupCall(const Group& group, CoreAV& av, IAudioControl& audio)
                    return;
                 }
 
-                this->av->sendGroupCallAudio(this->group.getId(), pcm, samples, chans, rate);
+                this->av.sendGroupCallAudio(this->group.getId(), pcm, samples, chans, rate);
             });
 
     connect(audioSource.get(), &IAudioSource::invalidated, this, &ToxGroupCall::onAudioSourceInvalidated);
@@ -218,6 +219,7 @@ ToxGroupCall::ToxGroupCall(const Group& group, CoreAV& av, IAudioControl& audio)
 
 ToxGroupCall::~ToxGroupCall()
 {
+    av.leaveGroupCall(group.getId());
     // disconnect all Qt connections
     clearPeers();
 }
@@ -231,7 +233,7 @@ void ToxGroupCall::onAudioSourceInvalidated()
                    return;
                 }
 
-                this->av->sendGroupCallAudio(this->group.getId(), pcm, samples, chans, rate);
+                this->av.sendGroupCallAudio(this->group.getId(), pcm, samples, chans, rate);
             });
 
     audioSource = std::move(newSrc);
