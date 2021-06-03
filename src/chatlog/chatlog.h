@@ -51,8 +51,8 @@ public:
     void clear();
     void copySelectedText(bool toSelectionBuffer = false) const;
     void setBusyNotification(ChatLine::Ptr notification);
+    void setTypingNotification(ChatLine::Ptr notification);
     void setTypingNotificationVisible(bool visible);
-    void setTypingNotificationName(const QString& displayName);
     void scrollToLine(ChatLine::Ptr line);
     void selectAll();
     void fontChanged(const QFont& font);
@@ -65,6 +65,8 @@ public:
 
     bool isEmpty() const;
     bool hasTextToBeCopied() const;
+
+    ChatLine::Ptr getTypingNotification() const;
     ChatLineContent* getContentFromGlobalPos(QPoint pos) const;
     const uint repNameAfter = 5 * 60;
 
@@ -128,7 +130,6 @@ private:
     void movePreciseSelectionUp(int offset);
     void moveMultiSelectionUp(int offset);
     void moveMultiSelectionDown(int offset);
-    void setTypingNotification();
 
 private:
     enum class SelectionMode
