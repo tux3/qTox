@@ -22,6 +22,7 @@
 #include "src/core/toxfile.h"
 #include "src/core/toxpk.h"
 #include "src/model/message.h"
+#include "src/model/systemmessage.h"
 #include "src/persistence/history.h"
 
 #include <memory>
@@ -48,16 +49,20 @@ public:
     {
         message,
         fileTransfer,
+        systemMessage,
     };
 
     ChatLogItem(ToxPk sender, const QString& displayName, ChatLogFile file);
     ChatLogItem(ToxPk sender, const QString& displayName, ChatLogMessage message);
+    ChatLogItem(SystemMessage message);
     const ToxPk& getSender() const;
     ContentType getContentType() const;
     ChatLogFile& getContentAsFile();
     const ChatLogFile& getContentAsFile() const;
     ChatLogMessage& getContentAsMessage();
     const ChatLogMessage& getContentAsMessage() const;
+    SystemMessage& getContentAsSystemMessage();
+    const SystemMessage& getContentAsSystemMessage() const;
     QDateTime getTimestamp() const;
     void setDisplayName(QString name);
     const QString& getDisplayName() const;

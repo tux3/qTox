@@ -212,6 +212,13 @@ std::vector<IChatLog::DateChatLogIdxPair> ChatHistory::getDateIdxs(const QDate& 
     }
 }
 
+void ChatHistory::addSystemMessage(const SystemMessage& message)
+{
+    // FIXME: #6221 Insert into history
+    sessionChatLog.addSystemMessage(message);
+}
+
+
 void ChatHistory::onFileUpdated(const ToxPk& sender, const ToxFile& file)
 {
     if (canUseHistory()) {

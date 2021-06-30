@@ -1130,8 +1130,8 @@ void Widget::dispatchFileSendFailed(uint32_t friendId, const QString& fileName)
         return;
     }
 
-    chatForm.value()->addSystemInfoMessage(tr("Failed to send file \"%1\"").arg(fileName),
-                                           ChatMessage::ERROR, QDateTime::currentDateTime());
+    chatForm.value()->addSystemInfoMessage(QDateTime::currentDateTime(),
+                                           SystemMessageType::fileSendFailed, {fileName});
 }
 
 void Widget::onRejectCall(uint32_t friendId)
@@ -2341,10 +2341,9 @@ void Widget::onGroupSendFailed(uint32_t groupnumber)
     const auto& groupId = GroupList::id2Key(groupnumber);
     assert(GroupList::findGroup(groupId));
 
-    const auto message = tr("Message failed to send");
     const auto curTime = QDateTime::currentDateTime();
     auto form = groupChatForms[groupId].data();
-    form->addSystemInfoMessage(message, ChatMessage::INFO, curTime);
+    form->addSystemInfoMessage(curTime, SystemMessageType::messageSendFailed, {});
 }
 
 void Widget::onFriendTypingChanged(uint32_t friendnumber, bool isTyping)
