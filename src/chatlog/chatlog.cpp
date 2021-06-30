@@ -22,7 +22,6 @@
 #include "chatlinecontentproxy.h"
 #include "chatmessage.h"
 #include "content/filetransferwidget.h"
-#include "content/text.h"
 #include "src/widget/gui.h"
 #include "src/widget/translator.h"
 #include "src/widget/style.h"
@@ -591,6 +590,11 @@ bool ChatLog::hasTextToBeCopied() const
     return selectionMode != SelectionMode::None;
 }
 
+ChatLine::Ptr ChatLog::getTypingNotification() const
+{
+    return typingNotification;
+}
+
 /**
  * @brief Finds the chat line object at a position on screen
  * @param pos Position on screen in global coordinates
@@ -641,25 +645,21 @@ void ChatLog::setBusyNotification(ChatLine::Ptr notification)
     busyNotification->visibilityChanged(true);
 }
 
+void ChatLog::setTypingNotification(ChatLine::Ptr notification)
+{
+    typingNotification = notification;
+    typingNotification->visibilityChanged(true);
+    typingNotification->setVisible(false);
+    typingNotification->addToScene(scene);
+    updateTypingNotification();
+}
+
 void ChatLog::setTypingNotificationVisible(bool visible)
 {
     if (typingNotification.get()) {
         typingNotification->setVisible(visible);
         updateTypingNotification();
     }
-}
-
-void ChatLog::setTypingNotificationName(const QString& displayName)
-{
-    if (!typingNotification.get()) {
-        setTypingNotification();
-    }
-
-    Text* text = static_cast<Text*>(typingNotification->getContent(1));
-    QString typingDiv = "<div class=typing>%1</div>";
-    text->setText(typingDiv.arg(tr("%1 is typing").arg(displayName)));
-
-    updateTypingNotification();
 }
 
 void ChatLog::scrollToLine(ChatLine::Ptr line)
@@ -706,7 +706,6 @@ void ChatLog::reloadTheme()
     selectionRectColor = Style::getColor(Style::SelectText);
     selGraphItem->setBrush(QBrush(selectionRectColor));
     selGraphItem->setPen(QPen(selectionRectColor.darker(120)));
-    setTypingNotification();
 
     for (ChatLine::Ptr l : lines) {
         l->reloadTheme();
@@ -1141,13 +1140,4 @@ void ChatLog::moveMultiSelectionDown(int offset)
         updateMultiSelectionRect();
         emit selectionChanged();
     }
-}
-
-void ChatLog::setTypingNotification()
-{
-    typingNotification = ChatMessage::createTypingNotification();
-    typingNotification->visibilityChanged(true);
-    typingNotification->setVisible(false);
-    typingNotification->addToScene(scene);
-    updateTypingNotification();
 }
