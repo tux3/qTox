@@ -31,6 +31,7 @@
 #include <QShortcut>
 #include <QString>
 #include <QSvgRenderer>
+#include <QWidgetAction>
 #include <QWindow>
 #ifdef Q_OS_MAC
 #include <QMenuBar>
@@ -2273,7 +2274,14 @@ void Widget::onTryCreateTrayIcon()
             icon = std::unique_ptr<QSystemTrayIcon>(new QSystemTrayIcon);
             updateIcons();
             trayMenu = new QMenu(this);
+            QLabel* trayUser = new QLabel(getUsername(), this);
+            QWidgetAction* trayUserAction = new QWidgetAction(trayMenu);
 
+            trayUser->setAlignment(Qt::AlignCenter);
+            trayUserAction->setDefaultWidget(trayUser);
+
+            trayMenu->addAction(trayUserAction);
+            trayMenu->addSeparator();
             // adding activate to the top, avoids accidentally clicking quit
             trayMenu->addAction(actionShow);
             trayMenu->addSeparator();
