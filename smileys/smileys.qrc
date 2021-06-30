@@ -15,84 +15,65 @@
         <file>Classic/tongue.png</file>
         <file>Classic/uncertain.png</file>
         <file>Classic/wink.png</file>
-        <file>Universe/263a.svg</file>
-        <file>Universe/1f600.svg</file>
-        <file>Universe/1f601.svg</file>
-        <file>Universe/1f602.svg</file>
-        <file>Universe/1f603.svg</file>
-        <file>Universe/1f604.svg</file>
-        <file>Universe/1f605.svg</file>
-        <file>Universe/1f606.svg</file>
-        <file>Universe/1f607.svg</file>
-        <file>Universe/1f608.svg</file>
-        <file>Universe/1f609.svg</file>
-        <file>Universe/1f60a.svg</file>
-        <file>Universe/1f60b.svg</file>
-        <file>Universe/1f60c.svg</file>
-        <file>Universe/1f60d.svg</file>
-        <file>Universe/1f60e.svg</file>
-        <file>Universe/1f60f.svg</file>
-        <file>Universe/1f610.svg</file>
-        <file>Universe/1f611.svg</file>
-        <file>Universe/1f612.svg</file>
-        <file>Universe/1f613.svg</file>
-        <file>Universe/1f614.svg</file>
-        <file>Universe/1f615.svg</file>
-        <file>Universe/1f616.svg</file>
-        <file>Universe/1f617.svg</file>
-        <file>Universe/1f618.svg</file>
-        <file>Universe/1f619.svg</file>
-        <file>Universe/1f61a.svg</file>
-        <file>Universe/1f61b.svg</file>
-        <file>Universe/1f61c.svg</file>
-        <file>Universe/1f61d.svg</file>
-        <file>Universe/1f61e.svg</file>
-        <file>Universe/1f61f.svg</file>
-        <file>Universe/1f620.svg</file>
-        <file>Universe/1f621.svg</file>
-        <file>Universe/1f622.svg</file>
-        <file>Universe/1f623.svg</file>
-        <file>Universe/1f624.svg</file>
-        <file>Universe/1f625.svg</file>
-        <file>Universe/1f626.svg</file>
-        <file>Universe/1f627.svg</file>
-        <file>Universe/1f628.svg</file>
-        <file>Universe/1f629.svg</file>
-        <file>Universe/1f62a.svg</file>
-        <file>Universe/1f62b.svg</file>
-        <file>Universe/1f62c.svg</file>
-        <file>Universe/1f62d.svg</file>
-        <file>Universe/1f62e.svg</file>
-        <file>Universe/1f62f.svg</file>
-        <file>Universe/1f630.svg</file>
-        <file>Universe/1f631.svg</file>
-        <file>Universe/1f632.svg</file>
-        <file>Universe/1f633.svg</file>
-        <file>Universe/1f634.svg</file>
-        <file>Universe/1f635.svg</file>
-        <file>Universe/1f636.svg</file>
-        <file>Universe/1f637.svg</file>
-        <file>Universe/1f638.svg</file>
-        <file>Universe/1f639.svg</file>
-        <file>Universe/1f63a.svg</file>
-        <file>Universe/1f63b.svg</file>
-        <file>Universe/1f63c.svg</file>
-        <file>Universe/1f63d.svg</file>
-        <file>Universe/1f63e.svg</file>
-        <file>Universe/1f63f.svg</file>
-        <file>Universe/1f640.svg</file>
-        <file>Universe/1f645.svg</file>
-        <file>Universe/1f646.svg</file>
-        <file>Universe/1f647.svg</file>
-        <file>Universe/1f648.svg</file>
-        <file>Universe/1f649.svg</file>
-        <file>Universe/1f64a.svg</file>
-        <file>Universe/1f64b.svg</file>
-        <file>Universe/1f64c.svg</file>
-        <file>Universe/1f64d.svg</file>
-        <file>Universe/1f64e.svg</file>
-        <file>Universe/1f64f.svg</file>
-        <file>Universe/1f4a9.svg</file>
+        <file>ASCII+Universe/emoticons.xml</file>
+        <file>Universe/1f004.svg</file>
+        <file>Universe/1f0cf.svg</file>
+        <file>Universe/1f170.svg</file>
+        <file>Universe/1f171.svg</file>
+        <file>Universe/1f17e.svg</file>
+        <file>Universe/1f17f.svg</file>
+        <file>Universe/1f18e.svg</file>
+        <file>Universe/1f191.svg</file>
+        <file>Universe/1f192.svg</file>
+        <file>Universe/1f193.svg</file>
+        <file>Universe/1f194.svg</file>
+        <file>Universe/1f195.svg</file>
+        <file>Universe/1f196.svg</file>
+        <file>Universe/1f197.svg</file>
+        <file>Universe/1f198.svg</file>
+        <file>Universe/1f199.svg</file>
+        <file>Universe/1f19a.svg</file>
+        <file>Universe/1f1e6.svg</file>
+        <file>Universe/1f1e7.svg</file>
+        <file>Universe/1f1e8.svg</file>
+        <file>Universe/1f1e9.svg</file>
+        <file>Universe/1f1ea.svg</file>
+        <file>Universe/1f1eb.svg</file>
+        <file>Universe/1f1ec.svg</file>
+        <file>Universe/1f1ed.svg</file>
+        <file>Universe/1f1ee.svg</file>
+        <file>Universe/1f1ef.svg</file>
+        <file>Universe/1f1f0.svg</file>
+        <file>Universe/1f1f1.svg</file>
+        <file>Universe/1f1f2.svg</file>
+        <file>Universe/1f1f3.svg</file>
+        <file>Universe/1f1f4.svg</file>
+        <file>Universe/1f1f5.svg</file>
+        <file>Universe/1f1f6.svg</file>
+        <file>Universe/1f1f7.svg</file>
+        <file>Universe/1f1f8.svg</file>
+        <file>Universe/1f1f9.svg</file>
+        <file>Universe/1f1fa.svg</file>
+        <file>Universe/1f1fb.svg</file>
+        <file>Universe/1f1fc.svg</file>
+        <file>Universe/1f1fd.svg</file>
+        <file>Universe/1f1fe.svg</file>
+        <file>Universe/1f1ff.svg</file>
+        <file>Universe/1f21a.svg</file>
+        <file>Universe/1f22f.svg</file>
+        <file>Universe/1f23a.svg</file>
+        <file>Universe/1f201.svg</file>
+        <file>Universe/1f202.svg</file>
+        <file>Universe/1f232.svg</file>
+        <file>Universe/1f233.svg</file>
+        <file>Universe/1f234.svg</file>
+        <file>Universe/1f235.svg</file>
+        <file>Universe/1f236.svg</file>
+        <file>Universe/1f237.svg</file>
+        <file>Universe/1f238.svg</file>
+        <file>Universe/1f239.svg</file>
+        <file>Universe/1f250.svg</file>
+        <file>Universe/1f251.svg</file>
         <file>Universe/1f300.svg</file>
         <file>Universe/1f301.svg</file>
         <file>Universe/1f302.svg</file>
@@ -126,11 +107,25 @@
         <file>Universe/1f31e.svg</file>
         <file>Universe/1f31f.svg</file>
         <file>Universe/1f320.svg</file>
+        <file>Universe/1f321.svg</file>
+        <file>Universe/1f324.svg</file>
+        <file>Universe/1f325.svg</file>
+        <file>Universe/1f326.svg</file>
+        <file>Universe/1f327.svg</file>
+        <file>Universe/1f328.svg</file>
+        <file>Universe/1f329.svg</file>
+        <file>Universe/1f32a.svg</file>
+        <file>Universe/1f32b.svg</file>
+        <file>Universe/1f32c.svg</file>
+        <file>Universe/1f32d.svg</file>
+        <file>Universe/1f32e.svg</file>
+        <file>Universe/1f32f.svg</file>
         <file>Universe/1f330.svg</file>
         <file>Universe/1f331.svg</file>
         <file>Universe/1f332.svg</file>
         <file>Universe/1f333.svg</file>
         <file>Universe/1f334.svg</file>
+        <file>Universe/1f336.svg</file>
         <file>Universe/1f335.svg</file>
         <file>Universe/1f337.svg</file>
         <file>Universe/1f338.svg</file>
@@ -202,6 +197,9 @@
         <file>Universe/1f37a.svg</file>
         <file>Universe/1f37b.svg</file>
         <file>Universe/1f37c.svg</file>
+        <file>Universe/1f37d.svg</file>
+        <file>Universe/1f37e.svg</file>
+        <file>Universe/1f37f.svg</file>
         <file>Universe/1f380.svg</file>
         <file>Universe/1f381.svg</file>
         <file>Universe/1f382.svg</file>
@@ -222,6 +220,13 @@
         <file>Universe/1f391.svg</file>
         <file>Universe/1f392.svg</file>
         <file>Universe/1f393.svg</file>
+        <file>Universe/1f396.svg</file>
+        <file>Universe/1f397.svg</file>
+        <file>Universe/1f399.svg</file>
+        <file>Universe/1f39a.svg</file>
+        <file>Universe/1f39b.svg</file>
+        <file>Universe/1f39e.svg</file>
+        <file>Universe/1f39f.svg</file>
         <file>Universe/1f3a0.svg</file>
         <file>Universe/1f3a1.svg</file>
         <file>Universe/1f3a2.svg</file>
@@ -259,11 +264,33 @@
         <file>Universe/1f3c2.svg</file>
         <file>Universe/1f3c3.svg</file>
         <file>Universe/1f3c4.svg</file>
+        <file>Universe/1f3c5.svg</file>
         <file>Universe/1f3c6.svg</file>
         <file>Universe/1f3c7.svg</file>
         <file>Universe/1f3c8.svg</file>
         <file>Universe/1f3c9.svg</file>
         <file>Universe/1f3ca.svg</file>
+        <file>Universe/1f3cb.svg</file>
+        <file>Universe/1f3cc.svg</file>
+        <file>Universe/1f3cd.svg</file>
+        <file>Universe/1f3ce.svg</file>
+        <file>Universe/1f3cf.svg</file>
+        <file>Universe/1f3d0.svg</file>
+        <file>Universe/1f3d1.svg</file>
+        <file>Universe/1f3d2.svg</file>
+        <file>Universe/1f3d3.svg</file>
+        <file>Universe/1f3d4.svg</file>
+        <file>Universe/1f3d5.svg</file>
+        <file>Universe/1f3d6.svg</file>
+        <file>Universe/1f3d7.svg</file>
+        <file>Universe/1f3d8.svg</file>
+        <file>Universe/1f3d9.svg</file>
+        <file>Universe/1f3da.svg</file>
+        <file>Universe/1f3db.svg</file>
+        <file>Universe/1f3dc.svg</file>
+        <file>Universe/1f3dd.svg</file>
+        <file>Universe/1f3de.svg</file>
+        <file>Universe/1f3df.svg</file>
         <file>Universe/1f3e0.svg</file>
         <file>Universe/1f3e1.svg</file>
         <file>Universe/1f3e2.svg</file>
@@ -281,6 +308,13 @@
         <file>Universe/1f3ee.svg</file>
         <file>Universe/1f3ef.svg</file>
         <file>Universe/1f3f0.svg</file>
+        <file>Universe/1f3f3.svg</file>
+        <file>Universe/1f3f4.svg</file>
+        <file>Universe/1f3f5.svg</file>
+        <file>Universe/1f3f7.svg</file>
+        <file>Universe/1f3f8.svg</file>
+        <file>Universe/1f3f9.svg</file>
+        <file>Universe/1f3fa.svg</file>
         <file>Universe/1f400.svg</file>
         <file>Universe/1f401.svg</file>
         <file>Universe/1f402.svg</file>
@@ -344,7 +378,9 @@
         <file>Universe/1f43c.svg</file>
         <file>Universe/1f43d.svg</file>
         <file>Universe/1f43e.svg</file>
+        <file>Universe/1f43f.svg</file>
         <file>Universe/1f440.svg</file>
+        <file>Universe/1f441.svg</file>
         <file>Universe/1f442.svg</file>
         <file>Universe/1f443.svg</file>
         <file>Universe/1f444.svg</file>
@@ -448,6 +484,7 @@
         <file>Universe/1f4a6.svg</file>
         <file>Universe/1f4a7.svg</file>
         <file>Universe/1f4a8.svg</file>
+        <file>Universe/1f4a9.svg</file>
         <file>Universe/1f4aa.svg</file>
         <file>Universe/1f4ab.svg</file>
         <file>Universe/1f4ac.svg</file>
@@ -526,10 +563,12 @@
         <file>Universe/1f4f5.svg</file>
         <file>Universe/1f4f6.svg</file>
         <file>Universe/1f4f7.svg</file>
+        <file>Universe/1f4f8.svg</file>
         <file>Universe/1f4f9.svg</file>
         <file>Universe/1f4fa.svg</file>
         <file>Universe/1f4fb.svg</file>
         <file>Universe/1f4fc.svg</file>
+        <file>Universe/1f4ff.svg</file>
         <file>Universe/1f500.svg</file>
         <file>Universe/1f501.svg</file>
         <file>Universe/1f502.svg</file>
@@ -592,6 +631,12 @@
         <file>Universe/1f53b.svg</file>
         <file>Universe/1f53c.svg</file>
         <file>Universe/1f53d.svg</file>
+        <file>Universe/1f549.svg</file>
+        <file>Universe/1f54a.svg</file>
+        <file>Universe/1f54b.svg</file>
+        <file>Universe/1f54c.svg</file>
+        <file>Universe/1f54d.svg</file>
+        <file>Universe/1f54e.svg</file>
         <file>Universe/1f550.svg</file>
         <file>Universe/1f551.svg</file>
         <file>Universe/1f552.svg</file>
@@ -616,57 +661,130 @@
         <file>Universe/1f565.svg</file>
         <file>Universe/1f566.svg</file>
         <file>Universe/1f567.svg</file>
+        <file>Universe/1f56f.svg</file>
+        <file>Universe/1f570.svg</file>
+        <file>Universe/1f573.svg</file>
+        <file>Universe/1f574.svg</file>
+        <file>Universe/1f575.svg</file>
+        <file>Universe/1f576.svg</file>
+        <file>Universe/1f577.svg</file>
+        <file>Universe/1f578.svg</file>
+        <file>Universe/1f579.svg</file>
+        <file>Universe/1f587.svg</file>
+        <file>Universe/1f58b.svg</file>
+        <file>Universe/1f58c.svg</file>
+        <file>Universe/1f58d.svg</file>
+        <file>Universe/1f590.svg</file>
         <file>Universe/1f595.svg</file>
+        <file>Universe/1f596.svg</file>
+        <file>Universe/1f57a.svg</file>
+        <file>Universe/1f58a.svg</file>
+        <file>Universe/1f5a4.svg</file>
+        <file>Universe/1f5a5.svg</file>
+        <file>Universe/1f5a8.svg</file>
+        <file>Universe/1f5b1.svg</file>
+        <file>Universe/1f5b2.svg</file>
+        <file>Universe/1f5bc.svg</file>
+        <file>Universe/1f5c2.svg</file>
+        <file>Universe/1f5c3.svg</file>
+        <file>Universe/1f5c4.svg</file>
+        <file>Universe/1f5d1.svg</file>
+        <file>Universe/1f5d2.svg</file>
+        <file>Universe/1f5d3.svg</file>
+        <file>Universe/1f5dc.svg</file>
+        <file>Universe/1f5dd.svg</file>
+        <file>Universe/1f5de.svg</file>
+        <file>Universe/1f5e1.svg</file>
+        <file>Universe/1f5e3.svg</file>
+        <file>Universe/1f5e8.svg</file>
+        <file>Universe/1f5ef.svg</file>
+        <file>Universe/1f5f3.svg</file>
+        <file>Universe/1f5fa.svg</file>
         <file>Universe/1f5fb.svg</file>
         <file>Universe/1f5fc.svg</file>
         <file>Universe/1f5fd.svg</file>
         <file>Universe/1f5fe.svg</file>
         <file>Universe/1f5ff.svg</file>
-        <file>Universe/1f004.svg</file>
-        <file>Universe/1f0cf.svg</file>
-        <file>Universe/2600.svg</file>
-        <file>Universe/2601.svg</file>
-        <file>Universe/260e.svg</file>
-        <file>Universe/2611.svg</file>
-        <file>Universe/2614.svg</file>
-        <file>Universe/2615.svg</file>
-        <file>Universe/261d.svg</file>
-        <file>Universe/2648.svg</file>
-        <file>Universe/2649.svg</file>
-        <file>Universe/264a.svg</file>
-        <file>Universe/264b.svg</file>
-        <file>Universe/264c.svg</file>
-        <file>Universe/264d.svg</file>
-        <file>Universe/264e.svg</file>
-        <file>Universe/264f.svg</file>
-        <file>Universe/2650.svg</file>
-        <file>Universe/2651.svg</file>
-        <file>Universe/2652.svg</file>
-        <file>Universe/2653.svg</file>
-        <file>Universe/2660.svg</file>
-        <file>Universe/2663.svg</file>
-        <file>Universe/2665.svg</file>
-        <file>Universe/2666.svg</file>
-        <file>Universe/2668.svg</file>
-        <file>Universe/267b.svg</file>
-        <file>Universe/267f.svg</file>
-        <file>Universe/2693.svg</file>
-        <file>Universe/26a0.svg</file>
-        <file>Universe/26a1.svg</file>
-        <file>Universe/26aa.svg</file>
-        <file>Universe/26ab.svg</file>
-        <file>Universe/26bd.svg</file>
-        <file>Universe/26be.svg</file>
-        <file>Universe/26c4.svg</file>
-        <file>Universe/26c5.svg</file>
-        <file>Universe/26ce.svg</file>
-        <file>Universe/26d4.svg</file>
-        <file>Universe/26ea.svg</file>
-        <file>Universe/26f2.svg</file>
-        <file>Universe/26f3.svg</file>
-        <file>Universe/26f5.svg</file>
-        <file>Universe/26fa.svg</file>
-        <file>Universe/26fd.svg</file>
+        <file>Universe/1f600.svg</file>
+        <file>Universe/1f601.svg</file>
+        <file>Universe/1f602.svg</file>
+        <file>Universe/1f603.svg</file>
+        <file>Universe/1f604.svg</file>
+        <file>Universe/1f605.svg</file>
+        <file>Universe/1f606.svg</file>
+        <file>Universe/1f607.svg</file>
+        <file>Universe/1f608.svg</file>
+        <file>Universe/1f609.svg</file>
+        <file>Universe/1f60a.svg</file>
+        <file>Universe/1f60b.svg</file>
+        <file>Universe/1f60c.svg</file>
+        <file>Universe/1f60d.svg</file>
+        <file>Universe/1f60e.svg</file>
+        <file>Universe/1f60f.svg</file>
+        <file>Universe/1f610.svg</file>
+        <file>Universe/1f611.svg</file>
+        <file>Universe/1f612.svg</file>
+        <file>Universe/1f613.svg</file>
+        <file>Universe/1f614.svg</file>
+        <file>Universe/1f615.svg</file>
+        <file>Universe/1f616.svg</file>
+        <file>Universe/1f617.svg</file>
+        <file>Universe/1f618.svg</file>
+        <file>Universe/1f619.svg</file>
+        <file>Universe/1f61a.svg</file>
+        <file>Universe/1f61b.svg</file>
+        <file>Universe/1f61c.svg</file>
+        <file>Universe/1f61d.svg</file>
+        <file>Universe/1f61e.svg</file>
+        <file>Universe/1f61f.svg</file>
+        <file>Universe/1f620.svg</file>
+        <file>Universe/1f621.svg</file>
+        <file>Universe/1f622.svg</file>
+        <file>Universe/1f623.svg</file>
+        <file>Universe/1f624.svg</file>
+        <file>Universe/1f625.svg</file>
+        <file>Universe/1f626.svg</file>
+        <file>Universe/1f627.svg</file>
+        <file>Universe/1f628.svg</file>
+        <file>Universe/1f629.svg</file>
+        <file>Universe/1f62a.svg</file>
+        <file>Universe/1f62b.svg</file>
+        <file>Universe/1f62c.svg</file>
+        <file>Universe/1f62d.svg</file>
+        <file>Universe/1f62e.svg</file>
+        <file>Universe/1f62f.svg</file>
+        <file>Universe/1f630.svg</file>
+        <file>Universe/1f631.svg</file>
+        <file>Universe/1f632.svg</file>
+        <file>Universe/1f633.svg</file>
+        <file>Universe/1f634.svg</file>
+        <file>Universe/1f635.svg</file>
+        <file>Universe/1f636.svg</file>
+        <file>Universe/1f637.svg</file>
+        <file>Universe/1f638.svg</file>
+        <file>Universe/1f639.svg</file>
+        <file>Universe/1f63a.svg</file>
+        <file>Universe/1f63b.svg</file>
+        <file>Universe/1f63c.svg</file>
+        <file>Universe/1f63d.svg</file>
+        <file>Universe/1f63e.svg</file>
+        <file>Universe/1f63f.svg</file>
+        <file>Universe/1f640.svg</file>
+        <file>Universe/1f641.svg</file>
+        <file>Universe/1f642.svg</file>
+        <file>Universe/1f643.svg</file>
+        <file>Universe/1f644.svg</file>
+        <file>Universe/1f645.svg</file>
+        <file>Universe/1f646.svg</file>
+        <file>Universe/1f647.svg</file>
+        <file>Universe/1f648.svg</file>
+        <file>Universe/1f649.svg</file>
+        <file>Universe/1f64a.svg</file>
+        <file>Universe/1f64b.svg</file>
+        <file>Universe/1f64c.svg</file>
+        <file>Universe/1f64d.svg</file>
+        <file>Universe/1f64e.svg</file>
+        <file>Universe/1f64f.svg</file>
         <file>Universe/1f680.svg</file>
         <file>Universe/1f681.svg</file>
         <file>Universe/1f682.svg</file>
@@ -737,6 +855,468 @@
         <file>Universe/1f6c3.svg</file>
         <file>Universe/1f6c4.svg</file>
         <file>Universe/1f6c5.svg</file>
+        <file>Universe/1f6cb.svg</file>
+        <file>Universe/1f6cc.svg</file>
+        <file>Universe/1f6cd.svg</file>
+        <file>Universe/1f6ce.svg</file>
+        <file>Universe/1f6cf.svg</file>
+        <file>Universe/1f6d0.svg</file>
+        <file>Universe/1f6d1.svg</file>
+        <file>Universe/1f6d2.svg</file>
+        <file>Universe/1f6d5.svg</file>
+        <file>Universe/1f6d6.svg</file>
+        <file>Universe/1f6d7.svg</file>
+        <file>Universe/1f6e1.svg</file>
+        <file>Universe/1f6eb.svg</file>
+        <file>Universe/1f6ec.svg</file>
+        <file>Universe/1f6e0.svg</file>
+        <file>Universe/1f6e2.svg</file>
+        <file>Universe/1f6e3.svg</file>
+        <file>Universe/1f6e4.svg</file>
+        <file>Universe/1f6e5.svg</file>
+        <file>Universe/1f6e9.svg</file>
+        <file>Universe/1f6f0.svg</file>
+        <file>Universe/1f6f3.svg</file>
+        <file>Universe/1f6f4.svg</file>
+        <file>Universe/1f6f5.svg</file>
+        <file>Universe/1f6f6.svg</file>
+        <file>Universe/1f6f7.svg</file>
+        <file>Universe/1f6f8.svg</file>
+        <file>Universe/1f6f9.svg</file>
+        <file>Universe/1f6fa.svg</file>
+        <file>Universe/1f6fc.svg</file>
+        <file>Universe/1f6fb.svg</file>
+        <file>Universe/1f7e0.svg</file>
+        <file>Universe/1f7e1.svg</file>
+        <file>Universe/1f7e2.svg</file>
+        <file>Universe/1f7e3.svg</file>
+        <file>Universe/1f7e4.svg</file>
+        <file>Universe/1f7e6.svg</file>
+        <file>Universe/1f7e5.svg</file>
+        <file>Universe/1f7e7.svg</file>
+        <file>Universe/1f7e8.svg</file>
+        <file>Universe/1f7e9.svg</file>
+        <file>Universe/1f7ea.svg</file>
+        <file>Universe/1f7eb.svg</file>
+        <file>Universe/1f90c.svg</file>
+        <file>Universe/1f90d.svg</file>
+        <file>Universe/1f90e.svg</file>
+        <file>Universe/1f90f.svg</file>
+        <file>Universe/1f910.svg</file>
+        <file>Universe/1f911.svg</file>
+        <file>Universe/1f912.svg</file>
+        <file>Universe/1f913.svg</file>
+        <file>Universe/1f914.svg</file>
+        <file>Universe/1f916.svg</file>
+        <file>Universe/1f917.svg</file>
+        <file>Universe/1f918.svg</file>
+        <file>Universe/1f919.svg</file>
+        <file>Universe/1f91a.svg</file>
+        <file>Universe/1f91b.svg</file>
+        <file>Universe/1f91c.svg</file>
+        <file>Universe/1f91d.svg</file>
+        <file>Universe/1f91e.svg</file>
+        <file>Universe/1f91f.svg</file>
+        <file>Universe/1f920.svg</file>
+        <file>Universe/1f921.svg</file>
+        <file>Universe/1f922.svg</file>
+        <file>Universe/1f923.svg</file>
+        <file>Universe/1f924.svg</file>
+        <file>Universe/1f925.svg</file>
+        <file>Universe/1f926.svg</file>
+        <file>Universe/1f927.svg</file>
+        <file>Universe/1f928.svg</file>
+        <file>Universe/1f929.svg</file>
+        <file>Universe/1f92a.svg</file>
+        <file>Universe/1f92b.svg</file>
+        <file>Universe/1f92c.svg</file>
+        <file>Universe/1f92d.svg</file>
+        <file>Universe/1f92e.svg</file>
+        <file>Universe/1f92f.svg</file>
+        <file>Universe/1f930.svg</file>
+        <file>Universe/1f931.svg</file>
+        <file>Universe/1f932.svg</file>
+        <file>Universe/1f933.svg</file>
+        <file>Universe/1f934.svg</file>
+        <file>Universe/1f935.svg</file>
+        <file>Universe/1f936.svg</file>
+        <file>Universe/1f937.svg</file>
+        <file>Universe/1f938.svg</file>
+        <file>Universe/1f939.svg</file>
+        <file>Universe/1f93a.svg</file>
+        <file>Universe/1f93c.svg</file>
+        <file>Universe/1f93d.svg</file>
+        <file>Universe/1f93e.svg</file>
+        <file>Universe/1f93f.svg</file>
+        <file>Universe/1f940.svg</file>
+        <file>Universe/1f941.svg</file>
+        <file>Universe/1f942.svg</file>
+        <file>Universe/1f943.svg</file>
+        <file>Universe/1f944.svg</file>
+        <file>Universe/1f945.svg</file>
+        <file>Universe/1f947.svg</file>
+        <file>Universe/1f948.svg</file>
+        <file>Universe/1f949.svg</file>
+        <file>Universe/1f94a.svg</file>
+        <file>Universe/1f94b.svg</file>
+        <file>Universe/1f94c.svg</file>
+        <file>Universe/1f94d.svg</file>
+        <file>Universe/1f94e.svg</file>
+        <file>Universe/1f94f.svg</file>
+        <file>Universe/1f950.svg</file>
+        <file>Universe/1f951.svg</file>
+        <file>Universe/1f953.svg</file>
+        <file>Universe/1f954.svg</file>
+        <file>Universe/1f955.svg</file>
+        <file>Universe/1f956.svg</file>
+        <file>Universe/1f957.svg</file>
+        <file>Universe/1f958.svg</file>
+        <file>Universe/1f959.svg</file>
+        <file>Universe/1f95a.svg</file>
+        <file>Universe/1f95b.svg</file>
+        <file>Universe/1f95c.svg</file>
+        <file>Universe/1f95d.svg</file>
+        <file>Universe/1f95e.svg</file>
+        <file>Universe/1f95f.svg</file>
+        <file>Universe/1f960.svg</file>
+        <file>Universe/1f961.svg</file>
+        <file>Universe/1f962.svg</file>
+        <file>Universe/1f963.svg</file>
+        <file>Universe/1f964.svg</file>
+        <file>Universe/1f965.svg</file>
+        <file>Universe/1f966.svg</file>
+        <file>Universe/1f967.svg</file>
+        <file>Universe/1f968.svg</file>
+        <file>Universe/1f969.svg</file>
+        <file>Universe/1f96a.svg</file>
+        <file>Universe/1f96b.svg</file>
+        <file>Universe/1f96c.svg</file>
+        <file>Universe/1f96d.svg</file>
+        <file>Universe/1f96e.svg</file>
+        <file>Universe/1f96f.svg</file>
+        <file>Universe/1f970.svg</file>
+        <file>Universe/1f971.svg</file>
+        <file>Universe/1f972.svg</file>
+        <file>Universe/1f973.svg</file>
+        <file>Universe/1f974.svg</file>
+        <file>Universe/1f975.svg</file>
+        <file>Universe/1f976.svg</file>
+        <file>Universe/1f977.svg</file>
+        <file>Universe/1f978.svg</file>
+        <file>Universe/1f97a.svg</file>
+        <file>Universe/1f97b.svg</file>
+        <file>Universe/1f97c.svg</file>
+        <file>Universe/1f97d.svg</file>
+        <file>Universe/1f97e.svg</file>
+        <file>Universe/1f97f.svg</file>
+        <file>Universe/1f980.svg</file>
+        <file>Universe/1f981.svg</file>
+        <file>Universe/1f982.svg</file>
+        <file>Universe/1f983.svg</file>
+        <file>Universe/1f984.svg</file>
+        <file>Universe/1f985.svg</file>
+        <file>Universe/1f986.svg</file>
+        <file>Universe/1f987.svg</file>
+        <file>Universe/1f988.svg</file>
+        <file>Universe/1f989.svg</file>
+        <file>Universe/1f98a.svg</file>
+        <file>Universe/1f98b.svg</file>
+        <file>Universe/1f98c.svg</file>
+        <file>Universe/1f98d.svg</file>
+        <file>Universe/1f98e.svg</file>
+        <file>Universe/1f98f.svg</file>
+        <file>Universe/1f990.svg</file>
+        <file>Universe/1f991.svg</file>
+        <file>Universe/1f992.svg</file>
+        <file>Universe/1f993.svg</file>
+        <file>Universe/1f994.svg</file>
+        <file>Universe/1f995.svg</file>
+        <file>Universe/1f996.svg</file>
+        <file>Universe/1f997.svg</file>
+        <file>Universe/1f998.svg</file>
+        <file>Universe/1f999.svg</file>
+        <file>Universe/1f99a.svg</file>
+        <file>Universe/1f99b.svg</file>
+        <file>Universe/1f99c.svg</file>
+        <file>Universe/1f99d.svg</file>
+        <file>Universe/1f99e.svg</file>
+        <file>Universe/1f99f.svg</file>
+        <file>Universe/1f9a0.svg</file>
+        <file>Universe/1f9a1.svg</file>
+        <file>Universe/1f9a2.svg</file>
+        <file>Universe/1f9a3.svg</file>
+        <file>Universe/1f9a4.svg</file>
+        <file>Universe/1f9a5.svg</file>
+        <file>Universe/1f9a6.svg</file>
+        <file>Universe/1f9a7.svg</file>
+        <file>Universe/1f9a8.svg</file>
+        <file>Universe/1f9a9.svg</file>
+        <file>Universe/1f9aa.svg</file>
+        <file>Universe/1f9ab.svg</file>
+        <file>Universe/1f9ac.svg</file>
+        <file>Universe/1f9ad.svg</file>
+        <file>Universe/1f9ae.svg</file>
+        <file>Universe/1f9af.svg</file>
+        <file>Universe/1f9ba.svg</file>
+        <file>Universe/1f9bc.svg</file>
+        <file>Universe/1f9bd.svg</file>
+        <file>Universe/1f9be.svg</file>
+        <file>Universe/1f9bf.svg</file>
+        <file>Universe/1f9b4.svg</file>
+        <file>Universe/1f9b5.svg</file>
+        <file>Universe/1f9b6.svg</file>
+        <file>Universe/1f9b7.svg</file>
+        <file>Universe/1f9b8.svg</file>
+        <file>Universe/1f9b9.svg</file>
+        <file>Universe/1f9bb.svg</file>
+        <file>Universe/1f9c1.svg</file>
+        <file>Universe/1f9c2.svg</file>
+        <file>Universe/1f9c3.svg</file>
+        <file>Universe/1f9c4.svg</file>
+        <file>Universe/1f9c5.svg</file>
+        <file>Universe/1f9c6.svg</file>
+        <file>Universe/1f9c7.svg</file>
+        <file>Universe/1f9c8.svg</file>
+        <file>Universe/1f9c9.svg</file>
+        <file>Universe/1f9ca.svg</file>
+        <file>Universe/1f9cb.svg</file>
+        <file>Universe/1f9cd.svg</file>
+        <file>Universe/1f9ce.svg</file>
+        <file>Universe/1f9cf.svg</file>
+        <file>Universe/1f9d0.svg</file>
+        <file>Universe/1f9d1.svg</file>
+        <file>Universe/1f9d2.svg</file>
+        <file>Universe/1f9d3.svg</file>
+        <file>Universe/1f9d4.svg</file>
+        <file>Universe/1f9d5.svg</file>
+        <file>Universe/1f9d6.svg</file>
+        <file>Universe/1f9d7.svg</file>
+        <file>Universe/1f9d8.svg</file>
+        <file>Universe/1f9d9.svg</file>
+        <file>Universe/1f9da.svg</file>
+        <file>Universe/1f9db.svg</file>
+        <file>Universe/1f9dc.svg</file>
+        <file>Universe/1f9dd.svg</file>
+        <file>Universe/1f9de.svg</file>
+        <file>Universe/1f9df.svg</file>
+        <file>Universe/1f9e0.svg</file>
+        <file>Universe/1f9e2.svg</file>
+        <file>Universe/1f9e1.svg</file>
+        <file>Universe/1f9e3.svg</file>
+        <file>Universe/1f9e4.svg</file>
+        <file>Universe/1f9e5.svg</file>
+        <file>Universe/1f9e6.svg</file>
+        <file>Universe/1f9e7.svg</file>
+        <file>Universe/1f9e8.svg</file>
+        <file>Universe/1f9e9.svg</file>
+        <file>Universe/1f9ea.svg</file>
+        <file>Universe/1f9eb.svg</file>
+        <file>Universe/1f9ec.svg</file>
+        <file>Universe/1f9ed.svg</file>
+        <file>Universe/1f9ee.svg</file>
+        <file>Universe/1f9ef.svg</file>
+        <file>Universe/1f9f0.svg</file>
+        <file>Universe/1f9f1.svg</file>
+        <file>Universe/1f9f2.svg</file>
+        <file>Universe/1f9f3.svg</file>
+        <file>Universe/1f9f4.svg</file>
+        <file>Universe/1f9f5.svg</file>
+        <file>Universe/1f9f6.svg</file>
+        <file>Universe/1f9f7.svg</file>
+        <file>Universe/1f9f8.svg</file>
+        <file>Universe/1f9f9.svg</file>
+        <file>Universe/1f9fa.svg</file>
+        <file>Universe/1f9fb.svg</file>
+        <file>Universe/1f9fc.svg</file>
+        <file>Universe/1f9fd.svg</file>
+        <file>Universe/1f9fe.svg</file>
+        <file>Universe/1f9ff.svg</file>
+        <file>Universe/1f1e8-1f1f3.svg</file>
+        <file>Universe/1f1e9-1f1ea.svg</file>
+        <file>Universe/1f1ea-1f1f8.svg</file>
+        <file>Universe/1f1eb-1f1f7.svg</file>
+        <file>Universe/1f1ec-1f1e7.svg</file>
+        <file>Universe/1f1ee-1f1f9.svg</file>
+        <file>Universe/1f1ef-1f1f5.svg</file>
+        <file>Universe/1f1f0-1f1f7.svg</file>
+        <file>Universe/1f1f7-1f1fa.svg</file>
+        <file>Universe/1f1fa-1f1f8.svg</file>
+        <file>Universe/1fa70.svg</file>
+        <file>Universe/1fa71.svg</file>
+        <file>Universe/1fa72.svg</file>
+        <file>Universe/1fa73.svg</file>
+        <file>Universe/1fa74.svg</file>
+        <file>Universe/1fa78.svg</file>
+        <file>Universe/1fa79.svg</file>
+        <file>Universe/1fa7a.svg</file>
+        <file>Universe/1fa80.svg</file>
+        <file>Universe/1fa81.svg</file>
+        <file>Universe/1fa82.svg</file>
+        <file>Universe/1fa83.svg</file>
+        <file>Universe/1fa84.svg</file>
+        <file>Universe/1fa85.svg</file>
+        <file>Universe/1fa86.svg</file>
+        <file>Universe/1fa90.svg</file>
+        <file>Universe/1fa91.svg</file>
+        <file>Universe/1fa92.svg</file>
+        <file>Universe/1fa93.svg</file>
+        <file>Universe/1fa94.svg</file>
+        <file>Universe/1fa95.svg</file>
+        <file>Universe/1fa96.svg</file>
+        <file>Universe/1fa97.svg</file>
+        <file>Universe/1fa99.svg</file>
+        <file>Universe/1fa9a.svg</file>
+        <file>Universe/1fa9b.svg</file>
+        <file>Universe/1fa9c.svg</file>
+        <file>Universe/1fa9d.svg</file>
+        <file>Universe/1fa9e.svg</file>
+        <file>Universe/1fa9f.svg</file>
+        <file>Universe/1faa0.svg</file>
+        <file>Universe/1faa1.svg</file>
+        <file>Universe/1faa2.svg</file>
+        <file>Universe/1faa3.svg</file>
+        <file>Universe/1faa4.svg</file>
+        <file>Universe/1faa5.svg</file>
+        <file>Universe/1faa6.svg</file>
+        <file>Universe/1faa7.svg</file>
+        <file>Universe/1faa8.svg</file>
+        <file>Universe/1fab0.svg</file>
+        <file>Universe/1fab1.svg</file>
+        <file>Universe/1fab2.svg</file>
+        <file>Universe/1fab3.svg</file>
+        <file>Universe/1fab4.svg</file>
+        <file>Universe/1fab5.svg</file>
+        <file>Universe/1fab6.svg</file>
+        <file>Universe/1fac0.svg</file>
+        <file>Universe/1fac1.svg</file>
+        <file>Universe/1fad0.svg</file>
+        <file>Universe/1fad1.svg</file>
+        <file>Universe/1fad2.svg</file>
+        <file>Universe/1fad3.svg</file>
+        <file>Universe/1fad4.svg</file>
+        <file>Universe/1fad5.svg</file>
+        <file>Universe/1fad6.svg</file>
+        <file>Universe/203c.svg</file>
+        <file>Universe/2049.svg</file>
+        <file>Universe/2122.svg</file>
+        <file>Universe/2139.svg</file>
+        <file>Universe/2194.svg</file>
+        <file>Universe/2195.svg</file>
+        <file>Universe/2196.svg</file>
+        <file>Universe/2197.svg</file>
+        <file>Universe/2198.svg</file>
+        <file>Universe/2199.svg</file>
+        <file>Universe/21a9.svg</file>
+        <file>Universe/21aa.svg</file>
+        <file>Universe/231a.svg</file>
+        <file>Universe/231b.svg</file>
+        <file>Universe/2328.svg</file>
+        <file>Universe/23cf.svg</file>
+        <file>Universe/23e9.svg</file>
+        <file>Universe/23ea.svg</file>
+        <file>Universe/23eb.svg</file>
+        <file>Universe/23ec.svg</file>
+        <file>Universe/23ed.svg</file>
+        <file>Universe/23ee.svg</file>
+        <file>Universe/23ef.svg</file>
+        <file>Universe/23f0.svg</file>
+        <file>Universe/23f1.svg</file>
+        <file>Universe/23f2.svg</file>
+        <file>Universe/23f3.svg</file>
+        <file>Universe/23f8.svg</file>
+        <file>Universe/23f9.svg</file>
+        <file>Universe/23fa.svg</file>
+        <file>Universe/24c2.svg</file>
+        <file>Universe/25aa.svg</file>
+        <file>Universe/25ab.svg</file>
+        <file>Universe/25c0.svg</file>
+        <file>Universe/25b6.svg</file>
+        <file>Universe/25fb.svg</file>
+        <file>Universe/25fc.svg</file>
+        <file>Universe/25fd.svg</file>
+        <file>Universe/25fe.svg</file>
+        <file>Universe/2620.svg</file>
+        <file>Universe/2622.svg</file>
+        <file>Universe/2623.svg</file>
+        <file>Universe/2626.svg</file>
+        <file>Universe/262a.svg</file>
+        <file>Universe/262e.svg</file>
+        <file>Universe/262f.svg</file>
+        <file>Universe/2600.svg</file>
+        <file>Universe/2601.svg</file>
+        <file>Universe/2602.svg</file>
+        <file>Universe/2603.svg</file>
+        <file>Universe/2604.svg</file>
+        <file>Universe/260e.svg</file>
+        <file>Universe/2611.svg</file>
+        <file>Universe/2614.svg</file>
+        <file>Universe/2615.svg</file>
+        <file>Universe/2618.svg</file>
+        <file>Universe/261d.svg</file>
+        <file>Universe/2638.svg</file>
+        <file>Universe/2639.svg</file>
+        <file>Universe/263a.svg</file>
+        <file>Universe/2640.svg</file>
+        <file>Universe/2642.svg</file>
+        <file>Universe/2648.svg</file>
+        <file>Universe/2649.svg</file>
+        <file>Universe/264a.svg</file>
+        <file>Universe/264b.svg</file>
+        <file>Universe/264c.svg</file>
+        <file>Universe/264d.svg</file>
+        <file>Universe/264e.svg</file>
+        <file>Universe/264f.svg</file>
+        <file>Universe/2650.svg</file>
+        <file>Universe/2651.svg</file>
+        <file>Universe/2652.svg</file>
+        <file>Universe/2653.svg</file>
+        <file>Universe/265f.svg</file>
+        <file>Universe/2660.svg</file>
+        <file>Universe/2663.svg</file>
+        <file>Universe/2665.svg</file>
+        <file>Universe/2666.svg</file>
+        <file>Universe/2668.svg</file>
+        <file>Universe/267b.svg</file>
+        <file>Universe/267e.svg</file>
+        <file>Universe/267f.svg</file>
+        <file>Universe/2692.svg</file>
+        <file>Universe/2693.svg</file>
+        <file>Universe/2694.svg</file>
+        <file>Universe/2695.svg</file>
+        <file>Universe/2696.svg</file>
+        <file>Universe/2697.svg</file>
+        <file>Universe/2699.svg</file>
+        <file>Universe/269b.svg</file>
+        <file>Universe/269c.svg</file>
+        <file>Universe/26a0.svg</file>
+        <file>Universe/26a1.svg</file>
+        <file>Universe/26aa.svg</file>
+        <file>Universe/26ab.svg</file>
+        <file>Universe/26b0.svg</file>
+        <file>Universe/26b1.svg</file>
+        <file>Universe/26bd.svg</file>
+        <file>Universe/26be.svg</file>
+        <file>Universe/26c4.svg</file>
+        <file>Universe/26c5.svg</file>
+        <file>Universe/26c8.svg</file>
+        <file>Universe/26ce.svg</file>
+        <file>Universe/26cf.svg</file>
+        <file>Universe/26d1.svg</file>
+        <file>Universe/26d3.svg</file>
+        <file>Universe/26d4.svg</file>
+        <file>Universe/26e9.svg</file>
+        <file>Universe/26ea.svg</file>
+        <file>Universe/26f1.svg</file>
+        <file>Universe/26f2.svg</file>
+        <file>Universe/26f3.svg</file>
+        <file>Universe/26f4.svg</file>
+        <file>Universe/26f5.svg</file>
+        <file>Universe/26f7.svg</file>
+        <file>Universe/26f8.svg</file>
+        <file>Universe/26f9.svg</file>
+        <file>Universe/26fa.svg</file>
+        <file>Universe/26fd.svg</file>
+        <file>Universe/2763.svg</file>
         <file>Universe/2702.svg</file>
         <file>Universe/2705.svg</file>
         <file>Universe/2708.svg</file>
@@ -744,10 +1324,13 @@
         <file>Universe/270a.svg</file>
         <file>Universe/270b.svg</file>
         <file>Universe/270c.svg</file>
+        <file>Universe/270d.svg</file>
         <file>Universe/270f.svg</file>
         <file>Universe/2712.svg</file>
         <file>Universe/2714.svg</file>
         <file>Universe/2716.svg</file>
+        <file>Universe/271d.svg</file>
+        <file>Universe/2721.svg</file>
         <file>Universe/2728.svg</file>
         <file>Universe/2733.svg</file>
         <file>Universe/2734.svg</file>
@@ -768,78 +1351,19 @@
         <file>Universe/27bf.svg</file>
         <file>Universe/2934.svg</file>
         <file>Universe/2935.svg</file>
+        <file>Universe/2b05.svg</file>
+        <file>Universe/2b06.svg</file>
+        <file>Universe/2b07.svg</file>
+        <file>Universe/2b1b.svg</file>
+        <file>Universe/2b1c.svg</file>
+        <file>Universe/2b50.svg</file>
+        <file>Universe/2b55.svg</file>
         <file>Universe/3030.svg</file>
+        <file>Universe/303d.svg</file>
         <file>Universe/3297.svg</file>
         <file>Universe/3299.svg</file>
         <file>Universe/a9.svg</file>
         <file>Universe/ae.svg</file>
-        <file>Universe/1f21a.svg</file>
-        <file>Universe/1f22f.svg</file>
-        <file>Universe/1f23a.svg</file>
-        <file>Universe/1f201.svg</file>
-        <file>Universe/1f202.svg</file>
-        <file>Universe/1f232.svg</file>
-        <file>Universe/1f233.svg</file>
-        <file>Universe/1f234.svg</file>
-        <file>Universe/1f235.svg</file>
-        <file>Universe/1f236.svg</file>
-        <file>Universe/1f237.svg</file>
-        <file>Universe/1f238.svg</file>
-        <file>Universe/1f239.svg</file>
-        <file>Universe/1f250.svg</file>
-        <file>Universe/1f251.svg</file>
-        <file>Universe/1f170.svg</file>
-        <file>Universe/1f171.svg</file>
-        <file>Universe/1f17e.svg</file>
-        <file>Universe/1f17f.svg</file>
-        <file>Universe/1f18e.svg</file>
-        <file>Universe/1f191.svg</file>
-        <file>Universe/1f192.svg</file>
-        <file>Universe/1f193.svg</file>
-        <file>Universe/1f194.svg</file>
-        <file>Universe/1f195.svg</file>
-        <file>Universe/1f196.svg</file>
-        <file>Universe/1f197.svg</file>
-        <file>Universe/1f198.svg</file>
-        <file>Universe/1f199.svg</file>
-        <file>Universe/1f19a.svg</file>
-        <file>Universe/1f1e6.svg</file>
-        <file>Universe/1f1e7.svg</file>
-        <file>Universe/1f1e8.svg</file>
-        <file>Universe/1f1e9.svg</file>
-        <file>Universe/1f1ea.svg</file>
-        <file>Universe/1f1eb.svg</file>
-        <file>Universe/1f1ec.svg</file>
-        <file>Universe/1f1ed.svg</file>
-        <file>Universe/1f1ee.svg</file>
-        <file>Universe/1f1ef.svg</file>
-        <file>Universe/1f1f0.svg</file>
-        <file>Universe/1f1f1.svg</file>
-        <file>Universe/1f1f2.svg</file>
-        <file>Universe/1f1f3.svg</file>
-        <file>Universe/1f1f4.svg</file>
-        <file>Universe/1f1f5.svg</file>
-        <file>Universe/1f1f6.svg</file>
-        <file>Universe/1f1f7.svg</file>
-        <file>Universe/1f1f8.svg</file>
-        <file>Universe/1f1f9.svg</file>
-        <file>Universe/1f1fa.svg</file>
-        <file>Universe/1f1fb.svg</file>
-        <file>Universe/1f1fc.svg</file>
-        <file>Universe/1f1fd.svg</file>
-        <file>Universe/1f1fe.svg</file>
-        <file>Universe/1f1ff.svg</file>
-        <file>Universe/1f1e8-1f1f3.svg</file>
-        <file>Universe/1f1e9-1f1ea.svg</file>
-        <file>Universe/1f1ea-1f1f8.svg</file>
-        <file>Universe/1f1eb-1f1f7.svg</file>
-        <file>Universe/1f1ec-1f1e7.svg</file>
-        <file>Universe/1f1ee-1f1f9.svg</file>
-        <file>Universe/1f1ef-1f1f5.svg</file>
-        <file>Universe/1f1f0-1f1f7.svg</file>
-        <file>Universe/1f1f7-1f1fa.svg</file>
-        <file>Universe/1f1fa-1f1f8.svg</file>
         <file>Universe/emoticons.xml</file>
-        <file>ASCII+Universe/emoticons.xml</file>
     </qresource>
 </RCC>
