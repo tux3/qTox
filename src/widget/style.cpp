@@ -91,15 +91,7 @@ static QMap<QString, QString> dictTheme;
 
 static const QList<Style::ThemeNameColor> themeNameColors = {
     {Style::Light, QObject::tr("Default"), QColor()},
-    {Style::Light, QObject::tr("Blue"), QColor("#004aa4")},
-    {Style::Light, QObject::tr("Olive"), QColor("#97ba00")},
-    {Style::Light, QObject::tr("Red"), QColor("#c23716")},
-    {Style::Light, QObject::tr("Violet"), QColor("#4617b5")},
     {Style::Dark, QObject::tr("Dark"), QColor()},
-    {Style::Dark, QObject::tr("Dark blue"), QColor("#00336d")},
-    {Style::Dark, QObject::tr("Dark olive"), QColor("#4d5f00")},
-    {Style::Dark, QObject::tr("Dark red"), QColor("#7a210d")},
-    {Style::Dark, QObject::tr("Dark violet"), QColor("#280d6c")}
 };
 
 QStringList Style::getThemeColorNames()
@@ -330,17 +322,10 @@ void Style::repolish(QWidget* w)
     }
 }
 
-void Style::setThemeColor(int color)
+void Style::setThemeColor()
 {
-    stylesheetsCache.clear(); // clear stylesheet cache which includes color info
-    palette.clear();
-    dictColor.clear();
-    initPalette();
-    initDictColor();
-    if (color < 0 || color >= themeNameColors.size())
-        setThemeColor(QColor());
-    else
-        setThemeColor(themeNameColors[color].color);
+    init();
+    setThemeColor(QColor());
 }
 
 /**
@@ -358,9 +343,9 @@ void Style::setThemeColor(const QColor& color)
         palette[ThemeMedium] = getColor(ThemeMedium);
         palette[ThemeLight] = getColor(ThemeLight);
     } else {
-        palette[ThemeDark] = color.darker(155);
-        palette[ThemeMediumDark] = color.darker(135);
-        palette[ThemeMedium] = color.darker(120);
+        palette[ThemeDark] = color.darker(135);
+        palette[ThemeMediumDark] = color.darker(115);
+        palette[ThemeMedium] = color;
         palette[ThemeLight] = color.lighter(110);
     }
 
@@ -368,6 +353,12 @@ void Style::setThemeColor(const QColor& color)
     dictTheme["@themeMediumDark"] = getColor(ThemeMediumDark).name();
     dictTheme["@themeMedium"] = getColor(ThemeMedium).name();
     dictTheme["@themeLight"] = getColor(ThemeLight).name();
+}
+
+void Style::setExtraThemeColor(const QColor &color)
+{
+    init();
+    setThemeColor(color);
 }
 
 /**
@@ -428,9 +419,21 @@ void Style::initDictColor()
 QString Style::getThemePath()
 {
     const int num = Settings::getInstance().getThemeColor();
-    if (themeNameColors[num].type == Dark) {
+
+    if (num >= themeNameColors.size() && num >= 5) { // NOTE: for compatibility with previous version
+        return BuiltinThemeDarkPath;
+    } else if (num < themeNameColors.size() && themeNameColors[num].type == Dark) {
         return BuiltinThemeDarkPath;
     }
 
     return BuiltinThemeDefaultPath;
+}
+
+void Style::init()
+{
+    stylesheetsCache.clear(); // clear stylesheet cache which includes color info
+    palette.clear();
+    dictColor.clear();
+    initPalette();
+    initDictColor();
 }

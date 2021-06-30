@@ -215,6 +215,9 @@ signals:
     void compactLayoutChanged(bool enabled);
     void sortingModeChanged(FriendListSortingMode mode);
     void showIdenticonsChanged(bool enabled);
+    void extraColorChanged(const QString& color);
+    void StateExtraColorsChanged(int state);
+
 
     // ChatView
     void useEmoticonsChanged(bool enabled);
@@ -527,6 +530,12 @@ public:
     void setEnableGroupChatsColor(bool state);
     bool getEnableGroupChatsColor() const;
 
+    void setExtraColor(const QString& color);
+    QString getExtraColor() const;
+
+    void setStateExtraColors(int state);
+    int getStateExtraColors() const;
+
     int getCircleCount() const;
     int addCircle(const QString& name = QString());
     int removeCircle(int id);
@@ -611,6 +620,8 @@ private:
     bool busySound;
     bool groupAlwaysNotify;
     bool nameColors;
+    QString extraColor;
+    int stateExtraColors;
 
     bool forceTCP;
     bool enableLanDiscovery;

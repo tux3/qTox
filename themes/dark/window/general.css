@@ -33,6 +33,19 @@ QTabBar::tab:!selected
     color: #8e8e8e;
 }
 
+QTabBar QToolButton {
+    background: #444242;
+    border: 1px solid #8e8e8e;
+    border-radius: 2px;
+    margin-left: 1px;
+}
+
+QTabBar QToolButton:hover {
+    background: #444242;
+    border: 1px solid #444242;
+    border-radius: 2px;
+}
+
 QLabel
 {
     color: @mainText;
@@ -136,6 +149,19 @@ QLineEdit:disabled
 {
     background-color: #262424;
     color: grey;
+}
+
+QLineEdit#searchContactText {
+    background: @themeLight;
+    padding: 3px;
+    border: 1px solid @themeLight;
+    border-radius: 2px;
+    color: white;
+}
+
+QLineEdit#searchContactText:focus {
+    border: 1px solid @themeMediumDark;
+    border-radius: 2px;
 }
 
 QScrollArea
@@ -297,12 +323,34 @@ QPushButton
     color: @mainText;
 }
 
+QPushButton:disabled {
+    background: #373535;
+    color: grey;
+}
+
 QSplitter:handle
 {
     color: @groundBase;
     background-color: @groundBase;
 }
 
+QToolButton {
+    background: @themeMedium;
+    border: 1px solid @themeMediumDark;
+    border-radius: 2px;
+}
+
+QToolButton:hover {
+    background-color: @themeMediumDark;
+}
+
+QToolButton::menu-indicator {
+    image: none; 
+}
+
+QMenu {
+    background: @themeMediumDark;
+    border: 1px solid @themeDark;
 QLabel#unstableVersion
 {
     color: black;

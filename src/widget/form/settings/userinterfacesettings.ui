@@ -7,23 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>678</width>
-    <height>810</height>
+    <height>972</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string notr="true">Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
-   <property name="leftMargin">
-    <number>6</number>
-   </property>
-   <property name="topMargin">
-    <number>6</number>
-   </property>
-   <property name="rightMargin">
-    <number>6</number>
-   </property>
-   <property name="bottomMargin">
+   <property name="margin">
     <number>6</number>
    </property>
    <item>
@@ -39,33 +30,18 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>650</width>
-        <height>950</height>
+        <width>662</width>
+        <height>956</height>
        </rect>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,0,0,0,0,0">
-       <property name="spacing">
-        <number>6</number>
-       </property>
-       <property name="topMargin">
-        <number>6</number>
-       </property>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
         <widget class="QGroupBox" name="chatGroupBox">
          <property name="title">
           <string>Chat</string>
          </property>
          <layout class="QFormLayout" name="formLayout_2">
-          <property name="leftMargin">
-           <number>9</number>
-          </property>
-          <property name="topMargin">
-           <number>9</number>
-          </property>
-          <property name="rightMargin">
-           <number>9</number>
-          </property>
-          <property name="bottomMargin">
+          <property name="margin">
            <number>9</number>
           </property>
           <item row="0" column="0">
@@ -468,23 +444,14 @@
           <string>Theme</string>
          </property>
          <layout class="QFormLayout" name="formLayout">
-          <property name="fieldGrowthPolicy">
-           <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-          </property>
-          <property name="topMargin">
-           <number>9</number>
-          </property>
-          <property name="bottomMargin">
-           <number>9</number>
-          </property>
-          <item row="3" column="0">
+          <item row="0" column="0">
            <widget class="QLabel" name="styleLabel">
             <property name="text">
              <string>Style:</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="1">
+          <item row="0" column="1">
            <widget class="QComboBox" name="styleBrowser">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -494,14 +461,14 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="0">
+          <item row="1" column="0">
            <widget class="QLabel" name="themeColorLabel">
             <property name="text">
              <string>Theme color:</string>
             </property>
            </widget>
           </item>
-          <item row="4" column="1">
+          <item row="1" column="1">
            <widget class="QComboBox" name="themeColorCBox">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -511,13 +478,51 @@
             </property>
            </widget>
           </item>
-          <item row="5" column="1">
+          <item row="2" column="0">
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>118</width>
+              <height>28</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="2" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <item>
+             <widget class="QCheckBox" name="useExtraColors">
+              <property name="text">
+               <string>Use extra colors</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="choiceExtraColor">
+              <property name="text">
+               <string>Choose colors</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="timestampLabel">
+            <property name="text">
+             <string>Timestamp format:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
            <layout class="QHBoxLayout" name="horizontalLayout_2">
             <item>
              <widget class="QComboBox" name="timestamp">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                <horstretch>0</horstretch>
+                <horstretch>2</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
@@ -531,8 +536,20 @@
             </item>
             <item>
              <widget class="QLabel" name="timeExample">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                <horstretch>2</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="layoutDirection">
+               <enum>Qt::LeftToRight</enum>
+              </property>
               <property name="text">
                <string notr="true">Time example</string>
+              </property>
+              <property name="textFormat">
+               <enum>Qt::AutoText</enum>
               </property>
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -541,17 +558,23 @@
             </item>
            </layout>
           </item>
-          <item row="5" column="0">
-           <widget class="QLabel" name="timestampLabel">
+          <item row="4" column="0">
+           <widget class="QLabel" name="dateformatLabel">
             <property name="text">
-             <string>Timestamp format:</string>
+             <string>Date format:</string>
             </property>
            </widget>
           </item>
-          <item row="7" column="1">
+          <item row="4" column="1">
            <layout class="QHBoxLayout" name="horizontalLayout_3">
             <item>
              <widget class="QComboBox" name="dateFormats">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>2</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="editable">
                <bool>true</bool>
               </property>
@@ -562,6 +585,12 @@
             </item>
             <item>
              <widget class="QLabel" name="dateExample">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                <horstretch>2</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="text">
                <string notr="true">Date Example</string>
               </property>
@@ -571,13 +600,6 @@
              </widget>
             </item>
            </layout>
-          </item>
-          <item row="7" column="0">
-           <widget class="QLabel" name="dateformatLabel">
-            <property name="text">
-             <string>Date format:</string>
-            </property>
-           </widget>
           </item>
          </layout>
         </widget>
