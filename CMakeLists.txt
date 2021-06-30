@@ -373,6 +373,8 @@ set(${PROJECT_NAME}_SOURCES
   src/widget/extensionstatus.h
   src/widget/flowlayout.cpp
   src/widget/flowlayout.h
+  src/widget/imagepreviewwidget.h
+  src/widget/imagepreviewwidget.cpp
   src/widget/searchform.cpp
   src/widget/searchform.h
   src/widget/searchtypes.h

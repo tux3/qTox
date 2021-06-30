@@ -500,49 +500,8 @@ void FileTransferWidget::handleButton(QPushButton* btn)
 
 void FileTransferWidget::showPreview(const QString& filename)
 {
-    static const QStringList previewExtensions = {"png", "jpeg", "jpg", "gif", "svg",
-                                                  "PNG", "JPEG", "JPG", "GIF", "SVG"};
-
-    if (previewExtensions.contains(QFileInfo(filename).suffix())) {
-        // Subtract to make border visible
-        const int size = qMax(ui->previewButton->width(), ui->previewButton->height()) - 4;
-
-        QFile imageFile(filename);
-        if (!imageFile.open(QIODevice::ReadOnly)) {
-            return;
-        }
-
-        const QByteArray imageFileData = imageFile.readAll();
-        QImage image = QImage::fromData(imageFileData);
-        auto orientation = ExifTransform::getOrientation(imageFileData);
-        image = ExifTransform::applyTransformation(image, orientation);
-
-        const QPixmap iconPixmap = scaleCropIntoSquare(QPixmap::fromImage(image), size);
-
-        ui->previewButton->setIcon(QIcon(iconPixmap));
-        ui->previewButton->setIconSize(iconPixmap.size());
-        ui->previewButton->show();
-        // Show mouseover preview, but make sure it's not larger than 50% of the screen
-        // width/height
-        const QRect desktopSize = QApplication::desktop()->geometry();
-        const int maxPreviewWidth{desktopSize.width() / 2};
-        const int maxPreviewHeight{desktopSize.height() / 2};
-        const QImage previewImage = [&image, maxPreviewWidth, maxPreviewHeight]() {
-            if (image.width() > maxPreviewWidth || image.height() > maxPreviewHeight) {
-                return image.scaled(maxPreviewWidth, maxPreviewHeight, Qt::KeepAspectRatio,
-                                    Qt::SmoothTransformation);
-            } else {
-                return image;
-            }
-        }();
-
-        QByteArray imageData;
-        QBuffer buffer(&imageData);
-        buffer.open(QIODevice::WriteOnly);
-        previewImage.save(&buffer, "PNG");
-        buffer.close();
-        ui->previewButton->setToolTip("<img src=data:image/png;base64," + imageData.toBase64() + "/>");
-    }
+    ui->previewButton->setIconFromFile(filename);
+    ui->previewButton->show();
 }
 
 void FileTransferWidget::onLeftButtonClicked()
@@ -558,31 +517,6 @@ void FileTransferWidget::onRightButtonClicked()
 void FileTransferWidget::onPreviewButtonClicked()
 {
     handleButton(ui->previewButton);
-}
-
-QPixmap FileTransferWidget::scaleCropIntoSquare(const QPixmap& source, const int targetSize)
-{
-    QPixmap result;
-
-    // Make sure smaller-than-icon images (at least one dimension is smaller) will not be
-    // upscaled
-    if (source.width() < targetSize || source.height() < targetSize) {
-        result = source;
-    } else {
-        result = source.scaled(targetSize, targetSize, Qt::KeepAspectRatioByExpanding,
-                               Qt::SmoothTransformation);
-    }
-
-    // Then, image has to be cropped (if needed) so it will not overflow rectangle
-    // Only one dimension will be bigger after Qt::KeepAspectRatioByExpanding
-    if (result.width() > targetSize) {
-        return result.copy((result.width() - targetSize) / 2, 0, targetSize, targetSize);
-    } else if (result.height() > targetSize) {
-        return result.copy(0, (result.height() - targetSize) / 2, targetSize, targetSize);
-    }
-
-    // Picture was rectangle in the first place, no cropping
-    return result;
 }
 
 void FileTransferWidget::updateWidget(ToxFile const& file)

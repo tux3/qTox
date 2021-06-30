@@ -37,6 +37,7 @@
 #include "src/widget/chatformheader.h"
 #include "src/widget/contentdialogmanager.h"
 #include "src/widget/form/loadhistorydialog.h"
+#include "src/widget/imagepreviewwidget.h"
 #include "src/widget/maskablepixmapwidget.h"
 #include "src/widget/searchform.h"
 #include "src/widget/style.h"
@@ -134,6 +135,23 @@ ChatForm::ChatForm(Profile& profile, Friend* chatFriend, IChatLog& chatLog, IMes
     headWidget->addWidget(callDuration, 1, Qt::AlignCenter);
     callDuration->hide();
 
+    imagePreview = new ImagePreviewButton(this);
+    imagePreview->setFixedSize(100, 100);
+    imagePreview->setFlat(true);
+    imagePreview->setStyleSheet("QPushButton { border: 0px }");
+    imagePreview->hide();
+
+    auto cancelIcon = QIcon(Style::getImagePath("rejectCall/rejectCall.svg"));
+    QPushButton* cancelButton = new QPushButton(imagePreview);
+    cancelButton->setFixedSize(20, 20);
+    cancelButton->move(QPoint(80, 0));
+    cancelButton->setIcon(cancelIcon);
+    cancelButton->setFlat(true);
+
+    connect(cancelButton, &QPushButton::pressed, this, &ChatForm::cancelImagePreview);
+
+    contentLayout->insertWidget(3, imagePreview);
+
     copyStatusAction = statusMessageMenu.addAction(QString(), this, SLOT(onCopyStatusMessage()));
 
     const CoreFile* coreFile = core.getCoreFile();
@@ -155,9 +173,12 @@ ChatForm::ChatForm(Profile& profile, Friend* chatFriend, IChatLog& chatLog, IMes
     connect(headWidget, &ChatFormHeader::micMuteToggle, this, &ChatForm::onMicMuteToggle);
     connect(headWidget, &ChatFormHeader::volMuteToggle, this, &ChatForm::onVolMuteToggle);
     connect(sendButton, &QPushButton::pressed, this, &ChatForm::callUpdateFriendActivity);
+    connect(sendButton, &QPushButton::pressed, this, &ChatForm::sendImageFromPreview);
     connect(msgEdit, &ChatTextEdit::enterPressed, this, &ChatForm::callUpdateFriendActivity);
     connect(msgEdit, &ChatTextEdit::textChanged, this, &ChatForm::onTextEditChanged);
-    connect(msgEdit, &ChatTextEdit::pasteImage, this, &ChatForm::sendImage);
+    connect(msgEdit, &ChatTextEdit::pasteImage, this, &ChatForm::previewImage);
+    connect(msgEdit, &ChatTextEdit::enterPressed, this, &ChatForm::sendImageFromPreview);
+    connect(msgEdit, &ChatTextEdit::escapePressed, this, &ChatForm::cancelImagePreview);
     connect(statusMessageLabel, &CroppingLabel::customContextMenuRequested, this,
             [&](const QPoint& pos) {
                 if (!statusMessageLabel->text().isEmpty()) {
@@ -561,12 +582,29 @@ void ChatForm::doScreenshot()
 {
     // note: grabber is self-managed and will destroy itself when done
     ScreenshotGrabber* grabber = new ScreenshotGrabber;
-    connect(grabber, &ScreenshotGrabber::screenshotTaken, this, &ChatForm::sendImage);
+    connect(grabber, &ScreenshotGrabber::screenshotTaken, this, &ChatForm::previewImage);
     grabber->showGrabber();
 }
 
-void ChatForm::sendImage(const QPixmap& pixmap)
+void ChatForm::previewImage(const QPixmap& pixmap)
 {
+    imagePreviewSource = pixmap;
+    imagePreview->setIconFromPixmap(pixmap);
+    imagePreview->show();
+}
+
+void ChatForm::cancelImagePreview()
+{
+    imagePreviewSource = QPixmap();
+    imagePreview->hide();
+}
+
+void ChatForm::sendImageFromPreview()
+{
+    if (!imagePreview->isVisible()) {
+        return;
+    }
+
     QDir(Settings::getInstance().getPaths().getAppDataDirPath()).mkpath("images");
 
     // use ~ISO 8601 for screenshot timestamp, considering FS limitations
@@ -580,8 +618,10 @@ void ChatForm::sendImage(const QPixmap& pixmap)
     QFile file(filepath);
 
     if (file.open(QFile::ReadWrite)) {
-        pixmap.save(&file, "PNG");
+        imagePreviewSource.save(&file, "PNG");
         qint64 filesize = file.size();
+        imagePreview->hide();
+        imagePreviewSource = QPixmap();
         file.close();
         QFileInfo fi(file);
         CoreFile* coreFile = core.getCoreFile();

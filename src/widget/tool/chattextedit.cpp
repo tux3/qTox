@@ -48,6 +48,10 @@ void ChatTextEdit::keyPressEvent(QKeyEvent* event)
         emit enterPressed();
         return;
     }
+    if (key == Qt::Key_Escape) {
+        emit escapePressed();
+        return;
+    }
     if (key == Qt::Key_Tab) {
         if (event->modifiers())
             event->ignore();

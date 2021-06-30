@@ -168,6 +168,7 @@ protected:
 
     QMenu menu;
 
+    QVBoxLayout* contentLayout;
     QPushButton* emoteButton;
     QPushButton* fileButton;
     QPushButton* screenshotButton;

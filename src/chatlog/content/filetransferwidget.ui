@@ -270,7 +270,7 @@
          </layout>
         </item>
         <item row="1" column="0">
-         <widget class="QPushButton" name="previewButton">
+         <widget class="ImagePreviewButton" name="previewButton">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -296,7 +296,7 @@
            <string notr="true">QPushButton{ border: 2px solid white }</string>
           </property>
           <property name="icon">
-           <iconset resource="../../../res.qrc">
+           <iconset>
             <normaloff>:themes/default/fileTransferInstance/no.svg</normaloff>:themes/default/fileTransferInstance/no.svg</iconset>
           </property>
           <property name="iconSize">
@@ -382,7 +382,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../res.qrc">
+            <iconset>
              <normaloff>:themes/default/fileTransferInstance/no.svg</normaloff>:themes/default/fileTransferInstance/no.svg</iconset>
            </property>
            <property name="iconSize">
@@ -420,7 +420,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../res.qrc">
+            <iconset>
              <normaloff>:themes/default/fileTransferInstance/no.svg</normaloff>:themes/default/fileTransferInstance/no.svg</iconset>
            </property>
            <property name="iconSize">
@@ -444,6 +444,11 @@
    <class>CroppingLabel</class>
    <extends>QLabel</extends>
    <header location="global">src/widget/tool/croppinglabel.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ImagePreviewButton</class>
+   <extends>QPushButton</extends>
+   <header location="global">src/widget/imagepreviewwidget.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

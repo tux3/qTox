@@ -283,7 +283,7 @@ GenericChatForm::GenericChatForm(const Core& _core, const Contact* contact, ICha
     mainFootLayout->addWidget(sendButton);
     mainFootLayout->setSpacing(0);
 
-    QVBoxLayout* contentLayout = new QVBoxLayout(contentWidget);
+    contentLayout = new QVBoxLayout(contentWidget);
     contentLayout->addWidget(searchForm);
     contentLayout->addWidget(dateInfo);
     contentLayout->addWidget(chatWidget);

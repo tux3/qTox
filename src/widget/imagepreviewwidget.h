@@ -1,5 +1,5 @@
 /*
-    Copyright © 2014-2019 by The qTox Project Contributors
+    Copyright © 2020 by The qTox Project Contributors
 
     This file is part of qTox, a Qt-based graphical interface for Tox.
 
@@ -19,31 +19,19 @@
 
 #pragma once
 
-#include <QTextEdit>
+#include <QPushButton>
+#include <QPixmap>
+#include <QString>
 
-class ChatTextEdit final : public QTextEdit
+class ImagePreviewButton : public QPushButton
 {
-    Q_OBJECT
 public:
-    explicit ChatTextEdit(QWidget* parent = nullptr);
-    ~ChatTextEdit();
-    void setLastMessage(QString lm);
-    void sendKeyEvent(QKeyEvent* event);
+    ImagePreviewButton(QWidget* parent = nullptr)
+        : QPushButton(parent)
+    {}
 
-signals:
-    void enterPressed();
-    void escapePressed();
-    void tabPressed();
-    void keyPressed();
-    void pasteImage(const QPixmap& pixmap);
-
-protected:
-    void keyPressEvent(QKeyEvent* event) final;
-
+    void setIconFromFile(const QString& filename);
+    void setIconFromPixmap(const QPixmap& image);
 private:
-    void retranslateUi();
-    bool pasteIfImage(QKeyEvent* event);
-
-private:
-    QString lastMessage;
+    void initialize(const QPixmap& image);
 };

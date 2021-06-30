@@ -41,6 +41,7 @@ class OfflineMsgEngine;
 class QPixmap;
 class QHideEvent;
 class QMoveEvent;
+class ImagePreviewButton;
 
 class ChatForm : public GenericChatForm
 {
@@ -96,7 +97,9 @@ private slots:
     void onFriendNameChanged(const QString& name);
     void onStatusMessage(const QString& message);
     void onUpdateTime();
-    void sendImage(const QPixmap& pixmap);
+    void previewImage(const QPixmap& pixmap);
+    void cancelImagePreview();
+    void sendImageFromPreview();
     void doScreenshot();
     void onCopyStatusMessage();
 
@@ -131,6 +134,8 @@ private:
     QTimer typingTimer;
     QElapsedTimer timeElapsed;
     QAction* copyStatusAction;
+    QPixmap imagePreviewSource;
+    ImagePreviewButton* imagePreview;
     bool isTyping;
     bool lastCallIsVideo;
     std::unique_ptr<NetCamView> netcam;
